@@ -1,1 +1,2 @@
-import SumOfThreeSq.Basic
+import SumOfThreeSq.InverseDirection
+import SumOfThreeSq.Mathlib.SpecialLinearGroup.Basic
