@@ -83,4 +83,3 @@ theorem Nat.not_sum_of_three_sq (x : ℤ) (hx : ∃ a k : ℕ, x = 4 ^ a * (8 * 
       apply mul_right_injective₀ (by omega : (4 : ℤ) ≠ 0); convert h using 1
       <;> simp only [Int.reducePow, Int.mul_ediv_cancel' hdiv4]; ring
     exact ih (x1 / 2) (x2 / 2) (x3 / 2) k this congr((· %8) $this)
-
