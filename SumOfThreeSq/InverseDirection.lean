@@ -1,4 +1,7 @@
-import Mathlib
+import Mathlib.Algebra.EuclideanDomain.Basic
+import Mathlib.Algebra.EuclideanDomain.Int
+import Mathlib.Data.Int.ModEq
+import Mathlib.NumberTheory.Multiplicity
 
 lemma Int.sq_mod_eight (n : ℤ) : n ^ 2 ≡ 0 [ZMOD 8] ∨ n ^ 2 ≡ 1 [ZMOD 8] ∨ n ^ 2 ≡ 4 [ZMOD 8] := by
   if hn1 : Odd n then
