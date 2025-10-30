@@ -1,5 +1,11 @@
 -- import Mathlib
 
+-- variable (n : ℕ)
+
+-- #check (@Matrix.toQuadraticMap' ℤ (Fin n) _ _ _ 1).toFun
+
+-- import Mathlib
+
 -- variable {n : Type*} [Fintype n] [DecidableEq n] {R : Type*} [CommRing R]
 
 -- open Matrix
