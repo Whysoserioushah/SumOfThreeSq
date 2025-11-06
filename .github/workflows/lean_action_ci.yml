@@ -21,4 +21,4 @@ jobs:
       - uses: leanprover-community/docgen-action@v1
         with: 
           blueprint: true
-          api-docs: true
+          api_docs: true
