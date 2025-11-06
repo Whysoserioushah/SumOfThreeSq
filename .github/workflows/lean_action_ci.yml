@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: leanprover/lean-action@v1
         with:
-          lake-pack-directory: "lean_content"
+          lake-package-directory: "lean_content"
       - uses: leanprover-community/docgen-action@1417dc7f90338c875da5e5870c03a287d8348896
         with: 
           blueprint: true
