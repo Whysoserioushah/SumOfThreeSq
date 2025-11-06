@@ -24,3 +24,4 @@ jobs:
         with: 
           blueprint: true
           api_docs: true
+          lake-package-directory: "lean_content"
