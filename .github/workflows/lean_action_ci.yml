@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: leanprover/lean-action@v1
-      - uses: leanprover-community/docgen-action@v1
+      - uses: leanprover-community/docgen-action@1417dc7f90338c875da5e5870c03a287d8348896
         with: 
           blueprint: true
           api_docs: true
