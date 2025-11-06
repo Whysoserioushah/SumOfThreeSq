@@ -1,2 +1,9 @@
-/.lake
+*/.lake
 .DS_Store
+*.json
+*.hash
+*.olean
+*.ilean
+*.trace
+*.c
+_site/

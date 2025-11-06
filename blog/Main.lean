@@ -62,14 +62,14 @@ def theme : Theme := { Theme.default with
   }
 
 
-def blog : Site := site Blog.FrontPage /
+def blog : Site := site Blog.About /
   static "static" ← "static_files"
-  "about" Blog.About
-  "blog" Blog.Posts with
-    Blog.Posts.Comparison
-    Blog.Posts.FibIter
-    Blog.Posts.Welcome
-    Blog.Posts.FirstPost
+  -- "about" Blog.About
+  -- "blog" Blog.Posts with
+  --   Blog.Posts.Comparison
+  --   Blog.Posts.FibIter
+  --   Blog.Posts.Welcome
+  --   Blog.Posts.FirstPost
 
 
-def main := blogMain theme blog
+def main := blogMain theme blog (options := ["--output", "../docs/_site"])
