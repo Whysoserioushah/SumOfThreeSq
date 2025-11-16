@@ -23,5 +23,5 @@ jobs:
       - uses: jcreedcmu/docgen-action@2be5bc319536b0c76a341ce0e9684aa2e4832358
         with: 
           blueprint: true
-          api_docs: true
-          lake_package_directory: "lean_content"
+          api-docs: true
+          lake-package-directory: "lean_content"
