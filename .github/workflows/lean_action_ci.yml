@@ -20,7 +20,7 @@ jobs:
       - uses: leanprover/lean-action@v1
         with:
           lake-package-directory: "lean_content"
-      - uses: jcreedcmu/docgen-action@9c86953a6199693f7efa18deb634e352e993e362
+      - uses: jcreedcmu/docgen-action@ef6d9dc273d5b747d22cb87a569cd91924164168
         with: 
           blueprint: true
           api-docs: true
