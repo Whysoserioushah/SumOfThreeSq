@@ -73,3 +73,5 @@ def blog : Site := site Blog.About /
 
 
 def main := blogMain theme blog (options := ["--output", "../docs/_site"])
+
+-- add meaningless line to reset
