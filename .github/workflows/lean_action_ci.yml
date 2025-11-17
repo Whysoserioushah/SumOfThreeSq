@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-      - uses: leanprover/lean-action@v1
+      - uses: jcreedcmu/docgen-action@2be5bc319536b0c76a341ce0e9684aa2e4832358
         with:
           lake-package-directory: "lean_content"
       - uses: jcreedcmu/docgen-action@9c86953a6199693f7efa18deb634e352e993e362
