@@ -85,11 +85,22 @@ lemma toQuadraticMap'_apply {A : Matrix n n R} (v : n → R) :
     A.toQuadraticMap' v = ∑ i : n, ∑ j : n, A i j * v i * v j := by
   sorry
 
+lemma toQuadratocMap'_apply' {A : Matrix n n R} (v : n → R) :
+    A.toQuadraticMap' v = dotProduct v (A • v) := sorry
+
 lemma toQuadraticMap'_id (v : n → R) : (1 : Matrix n n R).toQuadraticMap' v = ∑ i, v i ^ 2 := by
   sorry
 
-noncomputable def toQuadraticMap'EquivOfEquiv {A B : Matrix n n R} (hA : A.IsSymm) (hB : B.IsSymm)
-    (h : conjTransposeEquiv A B) : A.toQuadraticMap'.IsometryEquiv B.toQuadraticMap' where
+lemma dotProduct_mulVec_eq {x y : n → R} {M : Matrix n n R} : x ⬝ᵥ (M • y) = (Mᵀ • x) ⬝ᵥ y := by
+  simp [dotProduct_mulVec, mulVec_transpose]
+
+lemma mulVec_dotProduct_eq {x y : n → R} {M : Matrix n n R} : (M • x) ⬝ᵥ y = x ⬝ᵥ (Mᵀ • y) := by
+  rw [dotProduct_mulVec_eq, transpose_transpose]
+
+lemma coe_inv' {A : SpecialLinearGroup n R} : A⁻¹.1 = A.1⁻¹ := by simp [Matrix.inv_def]
+
+noncomputable def toQuadraticMap'EquivOfEquiv {A B : Matrix n n R} (h : conjTransposeEquiv A B) :
+    A.toQuadraticMap'.IsometryEquiv B.toQuadraticMap' where
   toFun v := h.choose.1ᵀ⁻¹ • v
   map_add' := by simp
   map_smul' := by simp [mulVec_smul]
@@ -101,26 +112,15 @@ noncomputable def toQuadraticMap'EquivOfEquiv {A B : Matrix n n R} (hA : A.IsSym
     simp only [← MulAction.mul_smul]
     simp
   map_app' v := by
-    -- have hU := h.choose_spec
-    -- set U := h.choose with hU_def
-    -- rw [SpecialLinearGroup.smul_eq] at hU
-    -- -- rw [toQuadraticMap', LinearMap.BilinMap.toQuadraticMap_apply, toLinearMap₂'_apply']
-    -- -- rw [smul_dotProduct U.1ᵀ⁻¹ v, dotProduct_smul]
-    -- nth_rw 2 [toQuadraticMap']
-    -- rw [LinearMap.BilinMap.toQuadraticMap_apply, toLinearMap₂'_apply']
-    -- rw [← hA.eq] at hU
-    -- apply_fun (U.1⁻¹ * ·) at hU
-    -- rw [← mul_assoc, ← mul_assoc] at hU
-    -- simp at hU
-    sorry
-
-lemma _root_.QuadraticMap.PosDef_ofEquiv {M1 M2} [AddCommGroup M1] [AddCommGroup M2] [Module R M1]
-    [Module R M2] {Q1 Q2 : QuadraticMap R M1 M2} [PartialOrder M2] (h : Q1.IsometryEquiv Q2)
-    (hQ1 : Q1.PosDef) : Q2.PosDef := by
-  sorry
-
-lemma Binary.PosDef_iff {A : Matrix (Fin 2) (Fin 2) ℤ} (hA : A.IsSymm) : A.toQuadraticMap'.PosDef ↔
-    1 ≤ A 0 0 ∧ 1 ≤ A.det := by
-  sorry
+    generalize hU : h.choose = U
+    have hU' : h.choose • A = B := h.choose_spec
+    rw [hU] at hU'
+    simp_rw [toQuadratocMap'_apply']
+    have hA : A = U⁻¹ • B := by simp [← hU']
+    rw [hA, SpecialLinearGroup.smul_eq]
+    simp_rw [mul_assoc, MulAction.mul_smul]
+    nth_rw 2 [dotProduct_mulVec_eq]
+    rw [coe_inv']
+    simp_rw [Matrix.transpose_nonsing_inv]
 
 end Matrix
