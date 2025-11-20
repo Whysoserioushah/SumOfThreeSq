@@ -33,16 +33,22 @@ namespace Matrix
 def conjTransposeEquiv : Matrix n n R → Matrix n n R → Prop :=
   fun A B ↦ ∃ U : SpecialLinearGroup n R, U • A = B
 
-lemma conjTransposeEquiv.refl (A : Matrix n n R) : conjTransposeEquiv A A :=
-  sorry
+lemma conjTransposeEquiv.refl (A : Matrix n n R) : conjTransposeEquiv A A := by
+  use 1
+  rw [SpecialLinearGroup.one_smul']
 
 lemma conjTransposeEquiv.symm {A B : Matrix n n R} (h : conjTransposeEquiv A B) :
-    conjTransposeEquiv B A := by
-  sorry
+  conjTransposeEquiv B A := by
+  obtain ⟨U, hU⟩ := h
+  use U⁻¹
+  rw [← hU, ← MulAction.mul_smul, inv_mul_cancel, one_smul]
 
 lemma conjTransposeEquiv.trans {A B C : Matrix n n R} (hAB : conjTransposeEquiv A B)
     (hBC : conjTransposeEquiv B C) : conjTransposeEquiv A C := by
-  sorry
+    obtain ⟨U, hU⟩ := hAB
+    obtain ⟨V, hV⟩ := hBC
+    use V * U
+    rw [MulAction.mul_smul, hU, hV]
 
 lemma conjTranspose_isEquiv : Equivalence (conjTransposeEquiv (n := n) (R := R)) where
   refl := .refl
@@ -54,10 +60,26 @@ lemma conjTransposeEquiv_iff {A B : Matrix n n R} : conjTransposeEquiv A B ↔
 
 lemma conjTransposeEquiv_det {A B : Matrix n n R} (h : conjTransposeEquiv A B) :
     A.det = B.det := by
-  sorry
+    obtain ⟨U, hU⟩ := h
+    rw [← hU, SpecialLinearGroup.smul_eq, det_mul, det_transpose, U.2]
+    simp
+
+lemma conjTransposeEquiv_isSymm_right {A B : Matrix n n R} (h : conjTransposeEquiv A B) :
+    A.IsSymm → B.IsSymm := by
+    obtain ⟨U, hU⟩ := h
+    intro hA
+    rw [IsSymm, ← hU,SpecialLinearGroup.smul_eq]
+    repeat rw [transpose_mul]
+    rw [transpose_transpose, hA, mul_assoc]
 
 lemma conjTransposeEquiv_isSymm {A B : Matrix n n R} (h : conjTransposeEquiv A B) :
-    A.IsSymm ↔ B.IsSymm := sorry
+    A.IsSymm ↔ B.IsSymm := by
+    constructor
+    ·exact conjTransposeEquiv_isSymm_right h
+
+    have h' : conjTransposeEquiv B A := by
+      exact conjTransposeEquiv.symm h
+    exact conjTransposeEquiv_isSymm_right h'
 
 lemma toQuadraticMap'_apply {A : Matrix n n R} (v : n → R) :
     A.toQuadraticMap' v = ∑ i : n, ∑ j : n, A i j * v i * v j := by
