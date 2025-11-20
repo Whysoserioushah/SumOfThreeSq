@@ -67,29 +67,46 @@ lemma isSymm_of_rel (h : rel A B) (ha : A.IsSymm) : B.IsSymm := by
   subst hU
   simpa [IsSymm]
 
-lemma isSymm_iff_isSymm_of_rel (h : rel A B) : A.IsSymm ↔ B.IsSymm :=
-  ⟨isSymm_of_rel h, isSymm_of_rel <| Setoid.symm' _ h⟩
+lemma conjTranspose_isEquiv : Equivalence (conjTransposeEquiv (n := n) (R := R)) where
+  refl := .refl
+  symm := .symm
+  trans := .trans
 
-def toQuadraticMap'EquivSMul (A : M(n, R)) (U : SL(n, R)) :
-    A.toQuadraticMap'.IsometryEquiv (U • A).toQuadraticMap' where
-  __ := MulAction.toPerm (Uᵀ⁻¹)
-  map_add' := by simp [smul_add']
-  map_smul' := by simp [smul_comm]
-  map_app' v := by simp [toQuadraticMap'_apply, smul_def', smul_def, dotProduct_mulVec_eq]
+lemma conjTransposeEquiv_iff {A B : Matrix n n R} : conjTransposeEquiv A B ↔
+    ∃ U : SpecialLinearGroup n R, U • A = B := Iff.rfl
 
-theorem nonempty_isometryEquiv_of_rel {A B : M(n, R)} (h : rel A B) :
-    Nonempty (A.toQuadraticMap'.IsometryEquiv B.toQuadraticMap') :=
-  let ⟨U, hU⟩ := of_rel h
-  hU ▸ ⟨toQuadraticMap'EquivSMul A U⟩
+lemma conjTransposeEquiv_det {A B : Matrix n n R} (h : conjTransposeEquiv A B) :
+    A.det = B.det := by
+    obtain ⟨U, hU⟩ := h
+    rw [← hU, SpecialLinearGroup.smul_eq, det_mul, det_transpose, U.2]
+    simp
 
-lemma _root_.QuadraticMap.PosDef_ofEquiv {M1 M2} [AddCommGroup M1] [AddCommGroup M2] [Module R M1]
-    [Module R M2] {Q1 Q2 : QuadraticMap R M1 M2} [PartialOrder M2] (h : Q1.IsometryEquiv Q2)
-    (hQ1 : Q1.PosDef) : Q2.PosDef := by
-  sorry
+lemma conjTransposeEquiv_isSymm_right {A B : Matrix n n R} (h : conjTransposeEquiv A B) :
+    A.IsSymm → B.IsSymm := by
+    obtain ⟨U, hU⟩ := h
+    intro hA
+    rw [IsSymm, ← hU,SpecialLinearGroup.smul_eq]
+    repeat rw [transpose_mul]
+    rw [transpose_transpose, hA, mul_assoc]
 
-lemma _root_.QuadraticMap.Binary.PosDef_iff {A : M(Fin 2, ℤ)} (hA : A.IsSymm) :
-    A.toQuadraticMap'.PosDef ↔ 1 ≤ A 0 0 ∧ 1 ≤ A.det := by
-  sorry
+lemma conjTransposeEquiv_isSymm {A B : Matrix n n R} (h : conjTransposeEquiv A B) :
+    A.IsSymm ↔ B.IsSymm := by
+    constructor
+    ·exact conjTransposeEquiv_isSymm_right h
+
+    have h' : conjTransposeEquiv B A := by
+      exact conjTransposeEquiv.symm h
+    exact conjTransposeEquiv_isSymm_right h'
+
+lemma toQuadraticMap'_apply {A : Matrix n n R} (v : n → R) :
+    A.toQuadraticMap' v = ∑ i : n, ∑ j : n, A i j * v i * v j := by
+  simp [toQuadraticMap', toLinearMap₂'_apply]
+  refine Finset.sum_congr rfl fun i _ ↦ Finset.sum_congr rfl fun j _ ↦ ?_
+  linear_combination
+
+
+lemma toQuadraticMap'_id (v : n → R) : (1 : Matrix n n R).toQuadraticMap' v = ∑ i, v i ^ 2 := by
+  simp [toQuadraticMap'_apply, one_apply, pow_two]
 
 structure _root_.PosDefQuadMap (n : ℕ) where
   matrix : Matrix (Fin n) (Fin n) ℤ
