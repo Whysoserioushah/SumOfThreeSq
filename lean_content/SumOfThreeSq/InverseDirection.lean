@@ -1,4 +1,7 @@
-import Mathlib
+import Mathlib.Algebra.EuclideanDomain.Basic
+import Mathlib.Algebra.EuclideanDomain.Int
+import Mathlib.Data.Int.ModEq
+import Mathlib.NumberTheory.Multiplicity
 
 lemma Int.sq_mod_eight (n : ℤ) : n ^ 2 ≡ 0 [ZMOD 8] ∨ n ^ 2 ≡ 1 [ZMOD 8] ∨ n ^ 2 ≡ 4 [ZMOD 8] := by
   if hn1 : Odd n then
@@ -83,4 +86,3 @@ theorem Nat.not_sum_of_three_sq (x : ℤ) (hx : ∃ a k : ℕ, x = 4 ^ a * (8 * 
       apply mul_right_injective₀ (by omega : (4 : ℤ) ≠ 0); convert h using 1
       <;> simp only [Int.reducePow, Int.mul_ediv_cancel' hdiv4]; ring
     exact ih (x1 / 2) (x2 / 2) (x3 / 2) k this congr((· %8) $this)
-
