@@ -83,10 +83,13 @@ lemma conjTransposeEquiv_isSymm {A B : Matrix n n R} (h : conjTransposeEquiv A B
 
 lemma toQuadraticMap'_apply {A : Matrix n n R} (v : n → R) :
     A.toQuadraticMap' v = ∑ i : n, ∑ j : n, A i j * v i * v j := by
-  sorry
+  simp [toQuadraticMap', toLinearMap₂'_apply]
+  refine Finset.sum_congr rfl fun i _ ↦ Finset.sum_congr rfl fun j _ ↦ ?_
+  linear_combination
+
 
 lemma toQuadraticMap'_id (v : n → R) : (1 : Matrix n n R).toQuadraticMap' v = ∑ i, v i ^ 2 := by
-  sorry
+  simp [toQuadraticMap'_apply, one_apply, pow_two]
 
 noncomputable def toQuadraticMap'EquivOfEquiv {A B : Matrix n n R} (hA : A.IsSymm) (hB : B.IsSymm)
     (h : conjTransposeEquiv A B) : A.toQuadraticMap'.IsometryEquiv B.toQuadraticMap' where
