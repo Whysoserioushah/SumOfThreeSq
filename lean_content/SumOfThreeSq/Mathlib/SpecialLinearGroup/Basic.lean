@@ -1,14 +1,5 @@
 import Mathlib
 
--- #check ConjAct
-
--- import Mathlib
-
-variable (n : ℕ) in
-#check (@Matrix.toQuadraticMap' ℤ (Fin n) _ _ _ 1).toFun
-
--- import Mathlib
-
 variable {n : Type*} [Fintype n] [DecidableEq n] {R : Type*} [CommRing R]
 
 open Matrix
@@ -89,5 +80,39 @@ lemma conjTransposeEquiv_isSymm {A B : Matrix n n R} (h : conjTransposeEquiv A B
     have h' : conjTransposeEquiv B A := by
       exact conjTransposeEquiv.symm h
     exact conjTransposeEquiv_isSymm_right h'
+
+lemma toQuadraticMap'_apply {A : Matrix n n R} (v : n → R) :
+    A.toQuadraticMap' v = ∑ i : n, ∑ j : n, A i j * v i * v j := by
+  sorry
+
+lemma toQuadraticMap'_id (v : n → R) : (1 : Matrix n n R).toQuadraticMap' v = ∑ i, v i ^ 2 := by
+  sorry
+
+noncomputable def toQuadraticMap'EquivOfEquiv {A B : Matrix n n R} (hA : A.IsSymm) (hB : B.IsSymm)
+    (h : conjTransposeEquiv A B) : A.toQuadraticMap'.IsometryEquiv B.toQuadraticMap' where
+  toFun v := h.choose.1ᵀ⁻¹ • v
+  map_add' := by simp
+  map_smul' := by simp [mulVec_smul]
+  invFun v := h.choose.1ᵀ • v
+  left_inv v := by
+    simp only [← MulAction.mul_smul]
+    simp
+  right_inv v := by
+    simp only [← MulAction.mul_smul]
+    simp
+  map_app' v := by
+    -- have hU := h.choose_spec
+    -- set U := h.choose with hU_def
+    -- rw [SpecialLinearGroup.smul_eq] at hU
+    -- -- rw [toQuadraticMap', LinearMap.BilinMap.toQuadraticMap_apply, toLinearMap₂'_apply']
+    -- -- rw [smul_dotProduct U.1ᵀ⁻¹ v, dotProduct_smul]
+    -- nth_rw 2 [toQuadraticMap']
+    -- rw [LinearMap.BilinMap.toQuadraticMap_apply, toLinearMap₂'_apply']
+    -- rw [← hA.eq] at hU
+    -- apply_fun (U.1⁻¹ * ·) at hU
+    -- rw [← mul_assoc, ← mul_assoc] at hU
+    -- simp at hU
+    sorry
+
 
 end Matrix
