@@ -90,6 +90,6 @@ lemma _root_.QuadraticMap.Binary.PosDef_iff {A : Matrix (Fin 2) (Fin 2) ℤ} (hA
     A.toQuadraticMap'.PosDef ↔ 1 ≤ A 0 0 ∧ 1 ≤ A.det := by
   sorry
 
-structure PosDefSymmQuadMap
+structure PosDefSymmQuadMap where
 
 end Matrix.SpecialLinearGroup
