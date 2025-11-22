@@ -90,6 +90,10 @@ lemma _root_.QuadraticMap.Binary.PosDef_iff {A : M(Fin 2, ℤ)} (hA : A.IsSymm) 
     A.toQuadraticMap'.PosDef ↔ 1 ≤ A 0 0 ∧ 1 ≤ A.det := by
   sorry
 
-structure PosDefSymmQuadMap where
+structure _root_.PosDefSymmQuadMap (n : ℕ) extends QuadraticMap ℤ (Fin n → ℤ) ℤ where
+  matrix : Matrix (Fin n) (Fin n) ℤ
+  matrix_eq : toQuadraticMap = matrix.toQuadraticMap'
+  isSymm : matrix.IsSymm
+  posDef : toQuadraticMap.PosDef
 
 end Matrix.SpecialLinearGroup
