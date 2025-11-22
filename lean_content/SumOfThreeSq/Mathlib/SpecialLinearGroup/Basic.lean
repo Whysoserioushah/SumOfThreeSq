@@ -53,6 +53,10 @@ lemma conjTranspose_isEquiv : Equivalence (conjTransposeEquiv (n := n) (R := R))
   symm := .symm
   trans := .trans
 
+def conjTransposeEquiv_setoid : Setoid (Matrix n n R) where
+  r := conjTransposeEquiv
+  iseqv := conjTranspose_isEquiv
+
 lemma conjTransposeEquiv_iff {A B : Matrix n n R} : conjTransposeEquiv A B ↔
     ∃ U : SpecialLinearGroup n R, U • A = B := Iff.rfl
 
@@ -71,13 +75,8 @@ lemma conjTransposeEquiv_isSymm_right {A B : Matrix n n R} (h : conjTransposeEqu
     rw [transpose_transpose, hA, mul_assoc]
 
 lemma conjTransposeEquiv_isSymm {A B : Matrix n n R} (h : conjTransposeEquiv A B) :
-    A.IsSymm ↔ B.IsSymm := by
-    constructor
-    ·exact conjTransposeEquiv_isSymm_right h
-
-    have h' : conjTransposeEquiv B A := by
-      exact conjTransposeEquiv.symm h
-    exact conjTransposeEquiv_isSymm_right h'
+    A.IsSymm ↔ B.IsSymm :=
+  ⟨conjTransposeEquiv_isSymm_right h, conjTransposeEquiv_isSymm_right h.symm⟩
 
 lemma toQuadraticMap'_apply {A : Matrix n n R} (v : n → R) :
     A.toQuadraticMap' v = ∑ i : n, ∑ j : n, A i j * v i * v j := by
@@ -122,8 +121,10 @@ lemma _root_.QuadraticMap.PosDef_ofEquiv {M1 M2} [AddCommGroup M1] [AddCommGroup
     (hQ1 : Q1.PosDef) : Q2.PosDef := by
   sorry
 
-lemma Binary.PosDef_iff {A : Matrix (Fin 2) (Fin 2) ℤ} (hA : A.IsSymm) : A.toQuadraticMap'.PosDef ↔
-    1 ≤ A 0 0 ∧ 1 ≤ A.det := by
+lemma _root_.QuadraticMap.Binary.PosDef_iff {A : Matrix (Fin 2) (Fin 2) ℤ} (hA : A.IsSymm) :
+    A.toQuadraticMap'.PosDef ↔ 1 ≤ A 0 0 ∧ 1 ≤ A.det := by
   sorry
+
+structure PosDefSymmQuadMap
 
 end Matrix
