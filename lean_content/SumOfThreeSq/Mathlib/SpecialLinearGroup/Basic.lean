@@ -33,22 +33,20 @@ namespace Matrix
 def conjTransposeEquiv : Matrix n n R → Matrix n n R → Prop :=
   fun A B ↦ ∃ U : SpecialLinearGroup n R, U • A = B
 
-lemma conjTransposeEquiv.refl (A : Matrix n n R) : conjTransposeEquiv A A := by
-  use 1
-  rw [SpecialLinearGroup.one_smul']
+lemma conjTransposeEquiv.refl (A : Matrix n n R) : conjTransposeEquiv A A := ⟨1, by simp⟩
 
 lemma conjTransposeEquiv.symm {A B : Matrix n n R} (h : conjTransposeEquiv A B) :
-  conjTransposeEquiv B A := by
+    conjTransposeEquiv B A := by
   obtain ⟨U, hU⟩ := h
   use U⁻¹
   rw [← hU, ← MulAction.mul_smul, inv_mul_cancel, one_smul]
 
 lemma conjTransposeEquiv.trans {A B C : Matrix n n R} (hAB : conjTransposeEquiv A B)
     (hBC : conjTransposeEquiv B C) : conjTransposeEquiv A C := by
-    obtain ⟨U, hU⟩ := hAB
-    obtain ⟨V, hV⟩ := hBC
-    use V * U
-    rw [MulAction.mul_smul, hU, hV]
+  obtain ⟨U, hU⟩ := hAB
+  obtain ⟨V, hV⟩ := hBC
+  use V * U
+  rw [MulAction.mul_smul, hU, hV]
 
 lemma conjTranspose_isEquiv : Equivalence (conjTransposeEquiv (n := n) (R := R)) where
   refl := .refl
@@ -105,12 +103,8 @@ noncomputable def toQuadraticMap'EquivOfEquiv {A B : Matrix n n R} (h : conjTran
   map_add' := by simp
   map_smul' := by simp [mulVec_smul]
   invFun v := h.choose.1ᵀ • v
-  left_inv v := by
-    simp only [← MulAction.mul_smul]
-    simp
-  right_inv v := by
-    simp only [← MulAction.mul_smul]
-    simp
+  left_inv v := by simp
+  right_inv v := by simp
   map_app' v := by
     generalize hU : h.choose = U
     have hU' : h.choose • A = B := h.choose_spec
@@ -122,5 +116,14 @@ noncomputable def toQuadraticMap'EquivOfEquiv {A B : Matrix n n R} (h : conjTran
     nth_rw 2 [dotProduct_mulVec_eq]
     rw [coe_inv']
     simp_rw [Matrix.transpose_nonsing_inv]
+
+lemma _root_.QuadraticMap.PosDef_ofEquiv {M1 M2} [AddCommGroup M1] [AddCommGroup M2] [Module R M1]
+    [Module R M2] {Q1 Q2 : QuadraticMap R M1 M2} [PartialOrder M2] (h : Q1.IsometryEquiv Q2)
+    (hQ1 : Q1.PosDef) : Q2.PosDef := by
+  sorry
+
+lemma Binary.PosDef_iff {A : Matrix (Fin 2) (Fin 2) ℤ} (hA : A.IsSymm) : A.toQuadraticMap'.PosDef ↔
+    1 ≤ A 0 0 ∧ 1 ≤ A.det := by
+  sorry
 
 end Matrix
