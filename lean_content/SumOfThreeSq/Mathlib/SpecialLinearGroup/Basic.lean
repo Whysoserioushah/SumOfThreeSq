@@ -9,8 +9,8 @@ namespace Matrix
 
 section Meta
 
-scoped notation "SL(" n "," R ")" => SpecialLinearGroup n R
-scoped notation "M(" n "," R ")" => Matrix n n R
+scoped notation "SL(" n ", " R ")" => SpecialLinearGroup n R
+scoped notation "M(" n ", " R ")" => Matrix n n R
 
 open Lean PrettyPrinter Delaborator SubExpr
 @[scoped app_delab Matrix] def delabMatrix : Delab := do
@@ -24,7 +24,7 @@ open Lean PrettyPrinter Delaborator SubExpr
 end Meta
 
 namespace SpecialLinearGroup
-variable {U U₁ U₂ V : SL(n,R)} {A B : Matrix n n R} {v v₁ v₂ : n → R}
+variable {U U₁ U₂ V : SL(n, R)} {A B : Matrix n n R} {v v₁ v₂ : n → R}
 
 lemma coe_inv' {A : SpecialLinearGroup n R} : A⁻¹.1 = A.1⁻¹ := by simp [Matrix.inv_def]
 
@@ -69,14 +69,14 @@ lemma isSymm_of_rel (h : rel A B) (ha : A.IsSymm) : B.IsSymm := by
 lemma isSymm_iff_isSymm_of_rel (h : rel A B) : A.IsSymm ↔ B.IsSymm :=
   ⟨isSymm_of_rel h, isSymm_of_rel <| Setoid.symm' _ h⟩
 
-def toQuadraticMap'EquivSMul (A : M(n,R)) (U : SL(n,R)) :
+def toQuadraticMap'EquivSMul (A : M(n, R)) (U : SL(n, R)) :
     A.toQuadraticMap'.IsometryEquiv (U • A).toQuadraticMap' where
   __ := MulAction.toPerm (Uᵀ⁻¹)
   map_add' := by simp [smul_add']
   map_smul' := by simp [smul_comm]
   map_app' v := by simp [toQuadraticMap'_apply, smul_def', smul_def, dotProduct_mulVec_eq]
 
-theorem nonempty_isometryEquiv_of_rel {A B : M(n,R)} (h : rel A B) :
+theorem nonempty_isometryEquiv_of_rel {A B : M(n, R)} (h : rel A B) :
     Nonempty (A.toQuadraticMap'.IsometryEquiv B.toQuadraticMap') :=
   let ⟨U, hU⟩ := of_rel h
   hU ▸ ⟨toQuadraticMap'EquivSMul A U⟩
@@ -86,7 +86,7 @@ lemma _root_.QuadraticMap.PosDef_ofEquiv {M1 M2} [AddCommGroup M1] [AddCommGroup
     (hQ1 : Q1.PosDef) : Q2.PosDef := by
   sorry
 
-lemma _root_.QuadraticMap.Binary.PosDef_iff {A : Matrix (Fin 2) (Fin 2) ℤ} (hA : A.IsSymm) :
+lemma _root_.QuadraticMap.Binary.PosDef_iff {A : M(Fin 2, ℤ)} (hA : A.IsSymm) :
     A.toQuadraticMap'.PosDef ↔ 1 ≤ A 0 0 ∧ 1 ≤ A.det := by
   sorry
 
