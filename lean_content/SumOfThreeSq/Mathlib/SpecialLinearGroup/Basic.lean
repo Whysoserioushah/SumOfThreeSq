@@ -69,7 +69,7 @@ lemma isSymm_of_rel (h : rel A B) (ha : A.IsSymm) : B.IsSymm := by
 lemma isSymm_iff_isSymm_of_rel (h : rel A B) : A.IsSymm ↔ B.IsSymm :=
   ⟨isSymm_of_rel h, isSymm_of_rel <| Setoid.symm' _ h⟩
 
-noncomputable def toQuadraticMap'EquivSMul (A : M(n,R)) (U : SL(n,R)) :
+def toQuadraticMap'EquivSMul (A : M(n,R)) (U : SL(n,R)) :
     A.toQuadraticMap'.IsometryEquiv (U • A).toQuadraticMap' where
   __ := MulAction.toPerm (Uᵀ⁻¹)
   map_add' := by simp [smul_add']
@@ -80,5 +80,16 @@ theorem nonempty_isometryEquiv_of_rel {A B : M(n,R)} (h : rel A B) :
     Nonempty (A.toQuadraticMap'.IsometryEquiv B.toQuadraticMap') :=
   let ⟨U, hU⟩ := of_rel h
   hU ▸ ⟨toQuadraticMap'EquivSMul A U⟩
+
+lemma _root_.QuadraticMap.PosDef_ofEquiv {M1 M2} [AddCommGroup M1] [AddCommGroup M2] [Module R M1]
+    [Module R M2] {Q1 Q2 : QuadraticMap R M1 M2} [PartialOrder M2] (h : Q1.IsometryEquiv Q2)
+    (hQ1 : Q1.PosDef) : Q2.PosDef := by
+  sorry
+
+lemma _root_.QuadraticMap.Binary.PosDef_iff {A : Matrix (Fin 2) (Fin 2) ℤ} (hA : A.IsSymm) :
+    A.toQuadraticMap'.PosDef ↔ 1 ≤ A 0 0 ∧ 1 ≤ A.det := by
+  sorry
+
+structure PosDefSymmQuadMap
 
 end Matrix.SpecialLinearGroup
