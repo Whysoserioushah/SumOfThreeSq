@@ -95,6 +95,21 @@ structure _root_.PosDefSymmQuadMap (n : ℕ) extends QuadraticMap ℤ (Fin n →
   isSymm : matrix.IsSymm
   posDef : toQuadraticMap.PosDef
 
+#check QuadraticMap.PosDef
+
+@[simp]
+lemma _root_.Matrix.add_toQuadraticMap' {R n : Type*} [Fintype n] [DecidableEq n] [CommRing R]
+    (M N : Matrix n n R) : (M + N).toQuadraticMap' = M.toQuadraticMap' + N.toQuadraticMap' := by
+  simp [toQuadraticMap']
+
+@[simp]
+lemma _root_.Matrix.zero_toQuadraticMap' {R n : Type*} [Fintype n] [DecidableEq n]
+    [CommRing R] : (0 : Matrix n n R).toQuadraticMap' = 0 := by
+  simp [toQuadraticMap']
+
+instance (n : ℕ) : Add (PosDefSymmQuadMap n) where
+  add Q1 Q2 := .mk (Q1.1 + Q2.1) (Q1.2 + Q2.2) (by simp [Q1.3, Q2.3])
+    (.add Q1.4 Q2.4) (.add _ _ Q1.5 Q2.5)
 
 @[reducible, inline]
 def EquivalentQuad (n : ℕ) : Setoid (PosDefSymmQuadMap n) where
@@ -117,3 +132,16 @@ theorem binaryQuadMap_of_det_eq_one (Q : PosDefSymmQuadMap 2) :
   sorry
 
 end Matrix.SpecialLinearGroup
+
+section tenaryQuad
+
+open Matrix
+
+-- lemma 1.3
+lemma tenaryQuad_apply (Q : PosDefSymmQuadMap 3) (v : Fin 3 → ℤ) :
+    (Q.2 0 0 • Q.1) v = (Q.2 0 0 * v 0 + Q.2 0 1 * v 1 + Q.2 0 2 * v 2) ^ 2 +
+    ![![Q.2 0 0 * Q.2 1 1 - Q.2 0 1 ^ 2, Q.2 0 0 * Q.2 1 2 - Q.2 0 1 * Q.2 0 2],
+    ![Q.2 0 0 * Q.2 1 2 - Q.2 0 1 * Q.2 0 2, Q.2 0 0 * Q.2 2 2 - (Q.2 0 2)^2]] *ᵥ ![v 1, v 2] := by
+  sorry
+
+end tenaryQuad
