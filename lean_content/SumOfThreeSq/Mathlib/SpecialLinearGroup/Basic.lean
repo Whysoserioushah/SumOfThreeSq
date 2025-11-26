@@ -1,5 +1,4 @@
-import Mathlib.Data.Matrix.Action
-import Mathlib.LinearAlgebra.QuadraticForm.IsometryEquiv
+import Mathlib
 import SumOfThreeSq.Mathlib.Data.Matrix.Mul
 import SumOfThreeSq.Mathlib.LinearAlgebra.QuadraticForm.Basic
 
@@ -95,5 +94,26 @@ structure _root_.PosDefSymmQuadMap (n : ℕ) extends QuadraticMap ℤ (Fin n →
   matrix_eq : toQuadraticMap = matrix.toQuadraticMap'
   isSymm : matrix.IsSymm
   posDef : toQuadraticMap.PosDef
+
+
+@[reducible, inline]
+def EquivalentQuad (n : ℕ) : Setoid (PosDefSymmQuadMap n) where
+  r Q1 Q2 := rel Q1.matrix Q2.matrix
+  iseqv.refl _ := rel.refl _
+  iseqv.symm := rel.symm
+  iseqv.trans := rel.trans
+
+lemma det_eq_of_equiv_quadMap {n : ℕ} {Q1 Q2 : PosDefSymmQuadMap n}
+    (h : EquivalentQuad n Q1 Q2) : Q1.matrix.det = Q2.matrix.det :=
+  det_eq_det_of_rel h
+
+lemma binaryQuadMap_bound1 (d : ℕ) (x : Quotient (EquivalentQuad 2)) :
+    ∃ Q : PosDefSymmQuadMap 2, Quotient.mk'' Q = x ∧ Q.matrix.det ≤ d ∧
+    2 * |Q.matrix 0 1| ≤ Q.matrix 0 0 ∧ Q.matrix 0 0 ≤ (2 / (Real.sqrt 3)) * Real.sqrt d := by
+  sorry
+
+theorem binaryQuadMap_of_det_eq_one (Q : PosDefSymmQuadMap 2) :
+    rel Q.matrix 1 := by
+  sorry
 
 end Matrix.SpecialLinearGroup
