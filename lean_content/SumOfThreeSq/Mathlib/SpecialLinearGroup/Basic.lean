@@ -27,12 +27,12 @@ end Meta
 namespace SpecialLinearGroup
 variable {U U₁ U₂ V : SL(n, R)} {A B : Matrix n n R} {v v₁ v₂ : n → R}
 
-lemma coe_inv' {A : SpecialLinearGroup n R} : A⁻¹.1 = A.1⁻¹ := by simp [Matrix.inv_def]
+lemma coe_inv' {A : SL(n, R)} : A⁻¹.1 = A.1⁻¹ := by simp [Matrix.inv_def]
 
 attribute [-simp] coe_inv
 attribute [simp] coe_inv'
 
-@[simps! (isSimp := false)] instance : SMul (SpecialLinearGroup n R) (Matrix n n R) where
+@[simps! (isSimp := false)] instance : SMul SL(n, R) M(n, R) where
   smul U A := U.1 * A * U.1.transpose
 
 instance : MulAction (SpecialLinearGroup n R) (Matrix n n R) where
@@ -152,15 +152,28 @@ lemma QuadraticMap.Tenary.apply (A : Matrix (Fin 3) (Fin 3) ℤ) (v : Fin 3 → 
       (G A).toQuadraticMap' ![v 1, v 2] := by
   sorry
 
-lemma G_posDef {A : Matrix (Fin 3) (Fin 3) ℤ} (hA : A.IsSymm)
+lemma G_posDef {A : M((Fin 3), ℤ)} (hA : A.IsSymm)
     (hApos : A.toQuadraticMap'.PosDef) : (G A).toQuadraticMap'.PosDef := by
   sorry
 
 -- lemma 1.3 (2)
-lemma QuadraticMap.Tenary.PosDef_iff (A : Matrix (Fin 3) (Fin 3) ℤ) (hA : A.IsSymm) :
+lemma QuadraticMap.Tenary.PosDef_iff (A : M((Fin 3), ℤ)) (hA : A.IsSymm) :
     A.toQuadraticMap'.PosDef ↔ 1 ≤ A 0 0 ∧ 1 ≤ A 0 0 * A 1 1 - (A 0 1) ^ 2 ∧ 1 ≤ A.det := by
   sorry
 
-end tenaryQuad
+def Matrix.mkFin3OfFin2 (V : SL(Fin 2, ℤ)) (r s : ℤ) : SL(Fin 3, ℤ) where
+  val := ![![1, r, s], ![0, V 0 0, V 0 1], ![0, V 1 0, V 1 1]]
+  property := by
+    simpa [Matrix.det_fin_three] using Matrix.det_fin_two V.1 ▸ V.2
 
-#min_imports
+lemma Quadratic.Tenary.lemma4a (B : PosDefQuadMap 3) (V : SL(Fin 2, ℤ)) (r s : ℤ) :
+    B.1 0 0 = ((mkFin3OfFin2 V r s) • B.1) 0 0 := by
+  sorry
+
+lemma Quadratic.Tenary.lemma4b (B : PosDefQuadMap 3) (V : SL(Fin 2, ℤ)) (r s : ℤ) (v : Fin 3 → ℤ) :
+    (B.1 0 0) * ((mkFin3OfFin2 V r s) • B.1).toQuadraticMap' v =
+    (((mkFin3OfFin2 V r s) • B.1) 0 0 * v 0 + ((mkFin3OfFin2 V r s) • B.1) 0 1 * v 1 +
+    ((mkFin3OfFin2 V r s) • B.1) 0 2 * v 2) ^ 2 + (V • (G B.1)).toQuadraticMap' ![v 1, v 2] := by
+  sorry
+
+end tenaryQuad
