@@ -19,7 +19,7 @@ lemma apply (A : Matrix (Fin 3) (Fin 3) ℤ) (hA : A.IsSymm) (v : Fin 3 → ℤ)
     A 0 0 * A.toQuadraticMap' v = (A 0 0 * v 0 + A 0 1 * v 1 + A 0 2 * v 2) ^ 2 +
       (G A).toQuadraticMap' ![v 1, v 2] := by
   simp [Matrix.toQuadraticMap'_apply', pow_two, mul_add, add_mul,
-    Fin.sum_univ_three, Matrix.IsSymm.ext_iff.1 hA]
+    Fin.sum_univ_three, Matrix.IsSymm.ext_iff.1 hA, G]
   ring
 
 lemma G_posDef {A : M((Fin 3), ℤ)} (hA : A.IsSymm)
@@ -67,10 +67,91 @@ lemma G_posDef {A : M((Fin 3), ℤ)} (hA : A.IsSymm)
   · simp_all [hA00.ne']
   · simp_all [hA00.ne']
 
+lemma Int.one_le_iff {n : ℤ} : 1 ≤ n ↔ 0 < n := .rfl
+
 -- lemma 1.3 (2)
 lemma PosDef_iff (A : M((Fin 3), ℤ)) (hA : A.IsSymm) :
     A.toQuadraticMap'.PosDef ↔ 1 ≤ A 0 0 ∧ 1 ≤ A 0 0 * A 1 1 - (A 0 1) ^ 2 ∧ 1 ≤ A.det := by
-  sorry
+  constructor
+  · intro (hApos : A.toQuadraticMap'.PosDef)
+    have hA00 : 0 < A 0 0 :=
+      calc A 0 0 = A.toQuadraticMap' ![1,0,0] := by
+            simp [Matrix.toQuadraticMap',  Matrix.toLinearMap₂'_apply, Fin.sum_univ_succ]
+      _ > 0 := by apply hApos; simp
+    constructor
+    · exact hA00
+    constructor
+    · have hGA00 : 0 < G A 0 0 :=
+        calc G A 0 0 = (G A).toQuadraticMap' ![1,0] := by
+              simp [Matrix.toQuadraticMap',  Matrix.toLinearMap₂'_apply, Fin.sum_univ_succ]
+        _ > 0 := by
+          apply G_posDef
+          · assumption
+          · assumption
+          · simp
+      simp only [G, Fin.isValue, cons_val', cons_val_zero, cons_val_fin_one] at hGA00
+      exact hGA00
+    have := G_posDef hA hApos
+    rw [QuadraticMap.Binary.PosDef_iff, G_det] at this
+    · have : 0 < A 0 0 * A.det := this.2
+      change 0 < A.det
+      exact Int.pos_of_mul_pos_right this hA00
+    · assumption
+    rw [IsSymm.ext_iff]
+    intro i j
+    fin_cases i
+    · fin_cases j
+      · rfl
+      · rfl
+    · fin_cases j
+      · rfl
+      · rfl
+  intro hA1
+  have ⟨h₁, h₂, h₃⟩ := hA1
+  have: (G A).toQuadraticMap'.PosDef :=  by
+    rw [QuadraticMap.Binary.PosDef_iff]
+    constructor
+    · simp[G]
+      exact h₂
+    · rw [G_det, Int.one_le_iff]
+      · apply mul_pos
+        · exact h₁
+        · exact h₃
+      assumption
+    rw [IsSymm.ext_iff]
+    intro i j
+    fin_cases i
+    · fin_cases j
+      · rfl
+      · rfl
+    · fin_cases j
+      · rfl
+      · rfl
+
+
+    -- convert this.2 using 1
+  intro v hv
+  by_contra! hw1
+  have h5 := apply A hA v
+  have h4 : 0 ≤ (A 0 0 * v 0 + A 0 1 * v 1 + A 0 2 * v 2) ^ 2 +
+      (G A).toQuadraticMap' ![v 1, v 2] := by
+    have h6 := this.nonneg ![v 1, v 2]
+    nlinarith
+  rw [← h5] at h4
+  have h6 : 0 ≤ A.toQuadraticMap' v := by nlinarith
+  have h7 : A.toQuadraticMap' v = 0 := by linarith
+  rw [h7, mul_zero, eq_comm,
+    add_eq_zero_iff_of_nonneg (by nlinarith) (this.nonneg _), sq_eq_zero_iff] at h5
+  have h8 : v 1 = 0 ∧ v 2 = 0 := by
+    have := this.anisotropic _ h5.2
+    simpa
+  have : v 0 = 0 := by
+    rw [h8.1, h8.2] at h5
+    simp at h5
+    obtain ⟨_ | h9, _⟩ := h5
+    · linarith
+    · exact h9
+  simp [funext_iff, Fin.forall_fin_succ, this, h8] at hv
 
 def _root_.Matrix.SpecialLinearGroup.mkFin3OfFin2 (V : SL(Fin 2, ℤ)) (r s : ℤ) : SL(Fin 3, ℤ) where
   val := ![![1, r, s], ![0, V 0 0, V 0 1], ![0, V 1 0, V 1 1]]
