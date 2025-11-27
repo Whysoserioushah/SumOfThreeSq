@@ -118,12 +118,15 @@ noncomputable def toQuadraticMap'EquivOfEquiv {A B : Matrix n n R} (hA : A.IsSym
     sorry
 
 lemma _root_.QuadraticMap.PosDef_ofEquiv {M1 M2} [AddCommGroup M1] [AddCommGroup M2] [Module R M1]
-    [Module R M2] {Q1 Q2 : QuadraticMap R M1 M2} [PartialOrder M2] (h : Q1.IsometryEquiv Q2)
-    (hQ1 : Q1.PosDef) : Q2.PosDef := by
-  sorry
+    [Module R M2] {Q1 Q2 : QuadraticMap R M1 M2} [PartialOrder M2] (e : Q1.IsometryEquiv Q2)
+    (hQ1 : Q1.PosDef) : Q2.PosDef := fun x hx ↦ by
+  obtain ⟨e, he⟩ := e
+  simp at he
+  rw [← e.apply_symm_apply x, he (e.symm x)]
+  exact hQ1 (e.symm x) (fun h ↦ hx (e.symm.injective (h.trans (map_zero e.symm).symm)))
+
+
 
 lemma Binary.PosDef_iff {A : Matrix (Fin 2) (Fin 2) ℤ} (hA : A.IsSymm) : A.toQuadraticMap'.PosDef ↔
-    1 ≤ A 0 0 ∧ 1 ≤ A.det := by
-  sorry
-
+    1 ≤ A 0 0 ∧ 1 ≤ A.det := sorry
 end Matrix
