@@ -7,3 +7,11 @@
 *.trace
 *.c
 _site/
+*.aux
+*.pdf
+*.log
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+web.*
+print.*
