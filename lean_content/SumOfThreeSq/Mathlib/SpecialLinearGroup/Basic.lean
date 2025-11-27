@@ -1,4 +1,6 @@
-import Mathlib
+import Mathlib.Data.Matrix.Action
+import Mathlib.Data.Real.Sqrt
+import Mathlib.LinearAlgebra.QuadraticForm.IsometryEquiv
 import SumOfThreeSq.Mathlib.Data.Matrix.Mul
 import SumOfThreeSq.Mathlib.LinearAlgebra.QuadraticForm.Basic
 
@@ -134,13 +136,6 @@ section tenaryQuad
 
 open Matrix
 
--- lemma 1.3
--- lemma tenaryQuad_apply (Q : PosDefSymmQuadMap 3) (v : Fin 3 → ℤ) :
---     (Q.2 0 0 • Q.1) v = (Q.2 0 0 * v 0 + Q.2 0 1 * v 1 + Q.2 0 2 * v 2) ^ 2 +
---     ![![Q.2 0 0 * Q.2 1 1 - Q.2 0 1 ^ 2, Q.2 0 0 * Q.2 1 2 - Q.2 0 1 * Q.2 0 2],
---     ![Q.2 0 0 * Q.2 1 2 - Q.2 0 1 * Q.2 0 2, Q.2 0 0 * Q.2 2 2 - (Q.2 0 2)^2]] *ᵥ ![v 1, v 2] := by
---   sorry
-
 @[simp]
 def G (A : Matrix (Fin 3) (Fin 3) ℤ) : Matrix (Fin 2) (Fin 2) ℤ :=
   ![![A 0 0 * A 1 1 - A 0 1 ^ 2, A 0 0 * A 1 2 - A 0 1 * A 0 2],
@@ -167,3 +162,5 @@ lemma QuadraticMap.Tenary.PosDef_iff (A : Matrix (Fin 3) (Fin 3) ℤ) (hA : A.Is
   sorry
 
 end tenaryQuad
+
+#min_imports
