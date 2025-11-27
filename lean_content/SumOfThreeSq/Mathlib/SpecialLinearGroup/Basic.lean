@@ -108,34 +108,42 @@ lemma toQuadraticMap'_apply {A : Matrix n n R} (v : n → R) :
 lemma toQuadraticMap'_id (v : n → R) : (1 : Matrix n n R).toQuadraticMap' v = ∑ i, v i ^ 2 := by
   simp [toQuadraticMap'_apply, one_apply, pow_two]
 
-structure _root_.PosDefQuadMap (n : ℕ) where
-  matrix : Matrix (Fin n) (Fin n) ℤ
-  isSymm : matrix.IsSymm
-  posDef : matrix.toQuadraticMap'.PosDef
+noncomputable def toQuadraticMap'EquivOfEquiv {A B : Matrix n n R} (hA : A.IsSymm) (hB : B.IsSymm)
+    (h : conjTransposeEquiv A B) : A.toQuadraticMap'.IsometryEquiv B.toQuadraticMap' where
+  toFun v := h.choose.1ᵀ⁻¹ • v
+  map_add' := by simp
+  map_smul' := by simp [mulVec_smul]
+  invFun v := h.choose.1ᵀ • v
+  left_inv v := by
+    simp only [← MulAction.mul_smul]
+    simp
+  right_inv v := by
+    simp only [← MulAction.mul_smul]
+    simp
+  map_app' v := by
+    -- have hU := h.choose_spec
+    -- set U := h.choose with hU_def
+    -- rw [SpecialLinearGroup.smul_eq] at hU
+    -- -- rw [toQuadraticMap', LinearMap.BilinMap.toQuadraticMap_apply, toLinearMap₂'_apply']
+    -- -- rw [smul_dotProduct U.1ᵀ⁻¹ v, dotProduct_smul]
+    -- nth_rw 2 [toQuadraticMap']
+    -- rw [LinearMap.BilinMap.toQuadraticMap_apply, toLinearMap₂'_apply']
+    -- rw [← hA.eq] at hU
+    -- apply_fun (U.1⁻¹ * ·) at hU
+    -- rw [← mul_assoc, ← mul_assoc] at hU
+    -- simp at hU
+    sorry
 
-@[simp]
-lemma _root_.Matrix.add_toQuadraticMap' {R n : Type*} [Fintype n] [DecidableEq n] [CommRing R]
-    (M N : Matrix n n R) : (M + N).toQuadraticMap' = M.toQuadraticMap' + N.toQuadraticMap' := by
-  simp [toQuadraticMap']
+lemma _root_.QuadraticMap.PosDef_ofEquiv {M1 M2} [AddCommGroup M1] [AddCommGroup M2] [Module R M1]
+    [Module R M2] {Q1 Q2 : QuadraticMap R M1 M2} [PartialOrder M2] (e : Q1.IsometryEquiv Q2)
+    (hQ1 : Q1.PosDef) : Q2.PosDef := fun x hx ↦ by
+  obtain ⟨e, he⟩ := e
+  simp at he
+  rw [← e.apply_symm_apply x, he (e.symm x)]
+  exact hQ1 (e.symm x) (fun h ↦ hx (e.symm.injective (h.trans (map_zero e.symm).symm)))
 
-@[simp]
-lemma _root_.Matrix.zero_toQuadraticMap' {R n : Type*} [Fintype n] [DecidableEq n]
-    [CommRing R] : (0 : Matrix n n R).toQuadraticMap' = 0 := by
-  simp [toQuadraticMap']
 
-instance (n : ℕ) : Add (PosDefQuadMap n) where
-  add Q1 Q2 := .mk (Q1.1 + Q2.1) (by simp [Q1.2, Q2.2])
-    (Matrix.add_toQuadraticMap' Q1.1 Q2.1 ▸ .add _ _ Q1.3 Q2.3)
 
-@[reducible, inline]
-def EquivalentQuad (n : ℕ) : Setoid (PosDefQuadMap n) where
-  r Q1 Q2 := rel Q1.matrix Q2.matrix
-  iseqv.refl _ := rel.refl _
-  iseqv.symm := rel.symm
-  iseqv.trans := rel.trans
-
-lemma det_eq_of_equiv_quadMap {n : ℕ} {Q1 Q2 : PosDefQuadMap n}
-    (h : EquivalentQuad n Q1 Q2) : Q1.matrix.det = Q2.matrix.det :=
-  det_eq_det_of_rel h
-
-end Matrix.SpecialLinearGroup
+lemma Binary.PosDef_iff {A : Matrix (Fin 2) (Fin 2) ℤ} (hA : A.IsSymm) : A.toQuadraticMap'.PosDef ↔
+    1 ≤ A 0 0 ∧ 1 ≤ A.det := sorry
+end Matrix
