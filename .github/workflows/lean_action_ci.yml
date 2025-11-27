@@ -25,6 +25,7 @@ jobs:
           lake-package-directory: "lean_content"
         
       - name: Run Verso
+        working-directory: ./blog
         run: lake exe generate-blog
 
       - name: Docgen + blueprint + build website
