@@ -72,4 +72,4 @@ def blog : Site := site Blog.About /
   --   Blog.Posts.FirstPost
 
 
-def main := blogMain theme blog (options := ["--output", "../docs/_site"])
+def main := blogMain theme blog (options := ["--output", "../docs"])
