@@ -5,25 +5,67 @@ open Matrix
 
 namespace QuadraticMap.Tenary
 
-@[simp]
 def G (A : Matrix (Fin 3) (Fin 3) ℤ) : Matrix (Fin 2) (Fin 2) ℤ :=
   ![![A 0 0 * A 1 1 - A 0 1 ^ 2, A 0 0 * A 1 2 - A 0 1 * A 0 2],
     ![A 0 0 * A 1 2 - A 0 1 * A 0 2, A 0 0 * A 2 2 - (A 0 2)^2]]
 
-lemma G_def (A : Matrix (Fin 3) (Fin 3) ℤ) (hA : A.IsSymm) :
+lemma G_det (A : Matrix (Fin 3) (Fin 3) ℤ) (hA : A.IsSymm) :
     (G A).det = A 0 0 * A.det := by
-  -- simp [Matrix.det_apply]
-  sorry
+  simp [Matrix.det_fin_three, Matrix.det_fin_two, Matrix.IsSymm.ext_iff.1 hA, G]
+  ring
 
 -- lemma 1.3 (1)
-lemma apply (A : Matrix (Fin 3) (Fin 3) ℤ) (v : Fin 3 → ℤ) :
-    A.toQuadraticMap' v = (A 0 0 * v 0 + A 0 1 * v 1 + A 0 2 * v 2) ^ 2 +
+lemma apply (A : Matrix (Fin 3) (Fin 3) ℤ) (hA : A.IsSymm) (v : Fin 3 → ℤ) :
+    A 0 0 * A.toQuadraticMap' v = (A 0 0 * v 0 + A 0 1 * v 1 + A 0 2 * v 2) ^ 2 +
       (G A).toQuadraticMap' ![v 1, v 2] := by
-  sorry
+  simp [Matrix.toQuadraticMap'_apply', pow_two, mul_add, add_mul,
+    Fin.sum_univ_three, Matrix.IsSymm.ext_iff.1 hA]
+  ring
 
 lemma G_posDef {A : M((Fin 3), ℤ)} (hA : A.IsSymm)
     (hApos : A.toQuadraticMap'.PosDef) : (G A).toQuadraticMap'.PosDef := by
-  sorry
+  intro v hv
+  by_contra! hG
+  -- have : (G A).toQuadraticMap' ![A 0 0 * v 0, A 0 0 * v 1] ≤ 0 := by
+  --   sorry
+  let x1 := -(A 0 1 * v 0 + A 0 2 * v 1)
+  have := apply A hA ![-(A 0 1 * v 0 + A 0 2 * v 1), A 0 0 * v 0, A 0 0 * v 1]
+  have H : A 0 0 * x1 + A 0 1 * A 0 0 * v 0 + A 0 2 * A 0 0 * v 1 =0 := by ring
+  have H' : A 0 0 * A.toQuadraticMap' ![x1, A 0 0 * v 0, A 0 0 * v 1] ≤ 0 :=
+  calc
+    _ = (A 0 0 * x1 + A 0 1 * A 0 0 * v 0 + A 0 2 * A 0 0 * v 1 )^2
+     + (G A).toQuadraticMap' ![A 0 0 * v 0,A 0 0 * v 1]:= by rw [apply A hA]; simp; ring
+    _ = (G A).toQuadraticMap' ![A 0 0 * v 0, A 0 0 * v 1] := by
+      rw[H]
+      simp
+    _ = (G A).toQuadraticMap' (A 0 0 • v) := by
+        congr
+        ext i
+        fin_cases i <;> simp
+    _ = (A 0 0 * A 0 0) • (G A).toQuadraticMap' v :=
+        QuadraticMap.map_smul (G A).toQuadraticMap' (A 0 0) v
+    _ ≤ _ := by
+      apply mul_nonpos_of_nonneg_of_nonpos
+      · exact mul_self_nonneg (A 0 0)
+      · assumption
+  have hA00 : 0 < A 0 0 :=
+    calc A 0 0 = A.toQuadraticMap' ![1,0,0] := by
+          simp [Matrix.toQuadraticMap',  Matrix.toLinearMap₂'_apply, Fin.sum_univ_succ]
+    _ > 0 := by apply hApos; simp
+  have : A.toQuadraticMap' ![x1, A 0 0 * v 0, A 0 0 * v 1] ≤ 0 := by
+    exact Int.nonpos_of_mul_nonpos_right H' hA00
+  have : A.toQuadraticMap' ![x1, A 0 0 * v 0, A 0 0 * v 1] = 0 := by
+    apply le_antisymm
+    · exact this
+    · exact PosDef.nonneg hApos ![x1, A 0 0 * v 0, A 0 0 * v 1]
+  have : ![x1, A 0 0 * v 0, A 0 0 * v 1] = 0 := by
+    apply hApos.anisotropic
+    exact this
+  apply hv
+  ext i
+  fin_cases i
+  · simp_all [hA00.ne']
+  · simp_all [hA00.ne']
 
 -- lemma 1.3 (2)
 lemma PosDef_iff (A : M((Fin 3), ℤ)) (hA : A.IsSymm) :
