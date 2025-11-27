@@ -1,5 +1,11 @@
 import Mathlib.LinearAlgebra.QuadraticForm.Basic
 
+def Int.IsRepresentedBy {n : ℤ} {ι} [Fintype ι] (Q : QuadraticMap ℤ (ι → ℤ) ℤ) : Prop :=
+  ∃ v : ι → ℤ, Q v = n
+
+lemma Int.isRepresentedBy_iff {n : ℤ} {ι} [Fintype ι] (Q : QuadraticMap ℤ (ι → ℤ) ℤ) :
+    n.IsRepresentedBy Q ↔ ∃ v : ι → ℤ, Q v = n := Iff.rfl
+
 namespace Matrix
 
 variable {n R : Type*} [Fintype n] [DecidableEq n] [CommRing R]
