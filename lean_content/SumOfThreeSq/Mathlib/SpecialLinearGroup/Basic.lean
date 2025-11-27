@@ -94,8 +94,6 @@ structure _root_.PosDefQuadMap (n : ℕ) where
   isSymm : matrix.IsSymm
   posDef : matrix.toQuadraticMap'.PosDef
 
-#check QuadraticMap.PosDef
-
 @[simp]
 lemma _root_.Matrix.add_toQuadraticMap' {R n : Type*} [Fintype n] [DecidableEq n] [CommRing R]
     (M N : Matrix n n R) : (M + N).toQuadraticMap' = M.toQuadraticMap' + N.toQuadraticMap' := by
@@ -106,27 +104,27 @@ lemma _root_.Matrix.zero_toQuadraticMap' {R n : Type*} [Fintype n] [DecidableEq 
     [CommRing R] : (0 : Matrix n n R).toQuadraticMap' = 0 := by
   simp [toQuadraticMap']
 
-instance (n : ℕ) : Add (PosDefSymmQuadMap n) where
-  add Q1 Q2 := .mk (Q1.1 + Q2.1) (Q1.2 + Q2.2) (by simp [Q1.3, Q2.3])
-    (.add Q1.4 Q2.4) (.add _ _ Q1.5 Q2.5)
+instance (n : ℕ) : Add (PosDefQuadMap n) where
+  add Q1 Q2 := .mk (Q1.1 + Q2.1) (by simp [Q1.2, Q2.2])
+    (Matrix.add_toQuadraticMap' Q1.1 Q2.1 ▸ .add _ _ Q1.3 Q2.3)
 
 @[reducible, inline]
-def EquivalentQuad (n : ℕ) : Setoid (PosDefSymmQuadMap n) where
+def EquivalentQuad (n : ℕ) : Setoid (PosDefQuadMap n) where
   r Q1 Q2 := rel Q1.matrix Q2.matrix
   iseqv.refl _ := rel.refl _
   iseqv.symm := rel.symm
   iseqv.trans := rel.trans
 
-lemma det_eq_of_equiv_quadMap {n : ℕ} {Q1 Q2 : PosDefSymmQuadMap n}
+lemma det_eq_of_equiv_quadMap {n : ℕ} {Q1 Q2 : PosDefQuadMap n}
     (h : EquivalentQuad n Q1 Q2) : Q1.matrix.det = Q2.matrix.det :=
   det_eq_det_of_rel h
 
 lemma binaryQuadMap_bound1 (d : ℕ) (x : Quotient (EquivalentQuad 2)) :
-    ∃ Q : PosDefSymmQuadMap 2, Quotient.mk'' Q = x ∧ Q.matrix.det ≤ d ∧
+    ∃ Q : PosDefQuadMap 2, Quotient.mk'' Q = x ∧ Q.matrix.det ≤ d ∧
     2 * |Q.matrix 0 1| ≤ Q.matrix 0 0 ∧ Q.matrix 0 0 ≤ (2 / (Real.sqrt 3)) * Real.sqrt d := by
   sorry
 
-theorem binaryQuadMap_of_det_eq_one (Q : PosDefSymmQuadMap 2) :
+theorem binaryQuadMap_of_det_eq_one (Q : PosDefQuadMap 2) :
     rel Q.matrix 1 := by
   sorry
 
@@ -137,10 +135,35 @@ section tenaryQuad
 open Matrix
 
 -- lemma 1.3
-lemma tenaryQuad_apply (Q : PosDefSymmQuadMap 3) (v : Fin 3 → ℤ) :
-    (Q.2 0 0 • Q.1) v = (Q.2 0 0 * v 0 + Q.2 0 1 * v 1 + Q.2 0 2 * v 2) ^ 2 +
-    ![![Q.2 0 0 * Q.2 1 1 - Q.2 0 1 ^ 2, Q.2 0 0 * Q.2 1 2 - Q.2 0 1 * Q.2 0 2],
-    ![Q.2 0 0 * Q.2 1 2 - Q.2 0 1 * Q.2 0 2, Q.2 0 0 * Q.2 2 2 - (Q.2 0 2)^2]] *ᵥ ![v 1, v 2] := by
+-- lemma tenaryQuad_apply (Q : PosDefSymmQuadMap 3) (v : Fin 3 → ℤ) :
+--     (Q.2 0 0 • Q.1) v = (Q.2 0 0 * v 0 + Q.2 0 1 * v 1 + Q.2 0 2 * v 2) ^ 2 +
+--     ![![Q.2 0 0 * Q.2 1 1 - Q.2 0 1 ^ 2, Q.2 0 0 * Q.2 1 2 - Q.2 0 1 * Q.2 0 2],
+--     ![Q.2 0 0 * Q.2 1 2 - Q.2 0 1 * Q.2 0 2, Q.2 0 0 * Q.2 2 2 - (Q.2 0 2)^2]] *ᵥ ![v 1, v 2] := by
+--   sorry
+
+@[simp]
+def G (A : Matrix (Fin 3) (Fin 3) ℤ) : Matrix (Fin 2) (Fin 2) ℤ :=
+  ![![A 0 0 * A 1 1 - A 0 1 ^ 2, A 0 0 * A 1 2 - A 0 1 * A 0 2],
+    ![A 0 0 * A 1 2 - A 0 1 * A 0 2, A 0 0 * A 2 2 - (A 0 2)^2]]
+
+lemma G_def (A : Matrix (Fin 3) (Fin 3) ℤ) (hA : A.IsSymm) :
+    (G A).det = A 0 0 * A.det := by
+  -- simp [Matrix.det_apply]
+  sorry
+
+-- lemma 1.3 (1)
+lemma QuadraticMap.Tenary.apply (A : Matrix (Fin 3) (Fin 3) ℤ) (v : Fin 3 → ℤ) :
+    A.toQuadraticMap' v = (A 0 0 * v 0 + A 0 1 * v 1 + A 0 2 * v 2) ^ 2 +
+      (G A).toQuadraticMap' ![v 1, v 2] := by
+  sorry
+
+lemma G_posDef {A : Matrix (Fin 3) (Fin 3) ℤ} (hA : A.IsSymm)
+    (hApos : A.toQuadraticMap'.PosDef) : (G A).toQuadraticMap'.PosDef := by
+  sorry
+
+-- lemma 1.3 (2)
+lemma QuadraticMap.Tenary.PosDef_iff (A : Matrix (Fin 3) (Fin 3) ℤ) (hA : A.IsSymm) :
+    A.toQuadraticMap'.PosDef ↔ 1 ≤ A 0 0 ∧ 1 ≤ A 0 0 * A 1 1 - (A 0 1) ^ 2 ∧ 1 ≤ A.det := by
   sorry
 
 end tenaryQuad
