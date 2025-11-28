@@ -163,7 +163,8 @@ lemma lemma4a (B : PosDefQuadMap 3) (V : SL(Fin 2, ℤ)) (r s : ℤ) :
     B.1 0 0 = ((mkFin3OfFin2 V r s) • B.1) 0 0 := by
   sorry
 
-open Matrix.SpecialLinearGroup in
+open Matrix.SpecialLinearGroup
+
 lemma lemma4b (B : PosDefQuadMap 3) (V : SL(Fin 2, ℤ)) (r s : ℤ) (v : Fin 3 → ℤ) :
     (B.1 0 0) * ((mkFin3OfFin2 V r s) • B.1).toQuadraticMap' v =
     (((mkFin3OfFin2 V r s) • B.1) 0 0 * v 0 + ((mkFin3OfFin2 V r s) • B.1) 0 1 * v 1 +
@@ -179,12 +180,12 @@ def _root_.Matrix.SpcecialLinearGroup.mkFin3FromInt (u11 u21 u31 : ℤ)
     have : Int.gcd (u11.gcdB u21) u31 = 1 := by sorry
     sorry
 
-lemma lemma6 (d : ℤ) : ∃ Q : PosDefQuadMap 3,
-    Q.matrix.det = d ∧ 2 * max |Q.matrix 0 1| |Q.matrix 0 2| ≤ Q.matrix 0 0 ∧
+lemma lemma6 (d : ℤ) (x : Quotient (EquivalentQuad 3)) (hx : ∀ Q : PosDefQuadMap 3,
+    Quotient.mk'' Q = x → Q.1.det = d) : ∃ Q : PosDefQuadMap 3, Quotient.mk'' Q = x ∧
+    2 * max |Q.matrix 0 1| |Q.matrix 0 2| ≤ Q.matrix 0 0 ∧
     Q.matrix 0 0 ≤ (4 / (Real.sqrt 3)) * d ^ (1 / 3 : ℝ) := by
   sorry
 
-open Matrix.SpecialLinearGroup in
 lemma det_eq_one (Q : PosDefQuadMap 3) (hQ : Q.matrix.det = 1) :
     rel Q.matrix 1 := by
   sorry
