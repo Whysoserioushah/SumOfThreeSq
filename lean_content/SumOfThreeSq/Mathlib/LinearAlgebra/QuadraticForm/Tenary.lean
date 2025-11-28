@@ -44,23 +44,13 @@ lemma G_posDef {A : M((Fin 3), ℤ)} (hA : A.IsSymm)
         fin_cases i <;> simp
     _ = (A 0 0 * A 0 0) • (G A).toQuadraticMap' v :=
         QuadraticMap.map_smul (G A).toQuadraticMap' (A 0 0) v
-    _ ≤ _ := by
-      apply mul_nonpos_of_nonneg_of_nonpos
-      · exact mul_self_nonneg (A 0 0)
-      · assumption
-  have hA00 : 0 < A 0 0 :=
-    calc A 0 0 = A.toQuadraticMap' ![1,0,0] := by
-          simp [Matrix.toQuadraticMap',  Matrix.toLinearMap₂'_apply, Fin.sum_univ_succ]
-    _ > 0 := by apply hApos; simp
-  have : A.toQuadraticMap' ![x1, A 0 0 * v 0, A 0 0 * v 1] ≤ 0 := by
-    exact Int.nonpos_of_mul_nonpos_right H' hA00
-  have : A.toQuadraticMap' ![x1, A 0 0 * v 0, A 0 0 * v 1] = 0 := by
-    apply le_antisymm
-    · exact this
-    · exact PosDef.nonneg hApos ![x1, A 0 0 * v 0, A 0 0 * v 1]
-  have : ![x1, A 0 0 * v 0, A 0 0 * v 1] = 0 := by
-    apply hApos.anisotropic
-    exact this
+    _ ≤ _ := mul_nonpos_of_nonneg_of_nonpos (mul_self_nonneg _) (by assumption)
+  have hA00 : 0 < A 0 0 := lt_of_lt_of_eq (b := A.toQuadraticMap' ![1,0,0]) (hApos _ (by simp))
+    (by simp [toQuadraticMap'_apply', Fin.sum_univ_three])
+  have : A.toQuadraticMap' ![x1, A 0 0 * v 0, A 0 0 * v 1] = 0 :=
+    le_antisymm (Int.nonpos_of_mul_nonpos_right H' hA00) <|
+      hApos.nonneg ![x1, A 0 0 * v 0, A 0 0 * v 1]
+  have := hApos.anisotropic ![x1, A 0 0 * v 0, A 0 0 * v 1] this
   apply hv
   ext i
   fin_cases i
@@ -92,20 +82,9 @@ lemma PosDef_iff (A : M((Fin 3), ℤ)) (hA : A.IsSymm) :
       simp only [G, Fin.isValue, cons_val', cons_val_zero, cons_val_fin_one] at hGA00
       exact hGA00
     have := G_posDef hA hApos
-    rw [QuadraticMap.Binary.PosDef_iff, G_det] at this
-    · have : 0 < A 0 0 * A.det := this.2
-      change 0 < A.det
-      exact Int.pos_of_mul_pos_right this hA00
-    · assumption
-    rw [IsSymm.ext_iff]
-    intro i j
-    fin_cases i
-    · fin_cases j
-      · rfl
-      · rfl
-    · fin_cases j
-      · rfl
-      · rfl
+    rw [QuadraticMap.Binary.PosDef_iff, G_det A hA] at this
+    · exact Int.pos_of_mul_pos_right this.2 hA00
+    exact IsSymm.ext_iff.2 <| by simp [Fin.forall_fin_succ, G]
   intro hA1
   have ⟨h₁, h₂, h₃⟩ := hA1
   have: (G A).toQuadraticMap'.PosDef :=  by
@@ -127,9 +106,6 @@ lemma PosDef_iff (A : M((Fin 3), ℤ)) (hA : A.IsSymm) :
     · fin_cases j
       · rfl
       · rfl
-
-
-    -- convert this.2 using 1
   intro v hv
   by_contra! hw1
   have h5 := apply A hA v
