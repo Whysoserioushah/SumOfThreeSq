@@ -1,12 +1,6 @@
 import SumOfThreeSq.Mathlib.LinearAlgebra.QuadraticForm.Tenary
 import SumOfThreeSq.Mathlib.LinearAlgebra.QuadraticForm.Binary
-
--- def A (n : ℕ) (hn1 : 2 ≤ n) (d' : ℕ) (hdpos : 0 < d')
---     (ha : IsSquare (-d' : ZMod (d' * n - 1))) (a12' : ℤ) (this_1 : 2 ≤ d' * n)
---     [NeZero (d' * n - 1)] (a11' : ℤ)
---     (ha11 : (a12' : ZMod (d' * n - 1)).cast * (a12' : ZMod (d' * n - 1)).cast + ↑d' =
---     (-a11' + (a12' : ZMod (d' * n - 1)).cast * (a12' : ZMod (d' * n - 1)).cast /
---     ↑(d' * n - 1)) * ↑(d' * n - 1)) :
+import Mathlib
 
 private def A (n : ℕ) (d' : ℕ) (a12' : ℤ) (a11' : ℤ) : Matrix (Fin 3) (Fin 3) ℤ :=
   ![![(-a11' + (a12' : ZMod (d' * n - 1)).cast * (a12' : ZMod (d' * n - 1)).cast / ↑(d' * n - 1)),
@@ -23,21 +17,28 @@ lemma A_det_eq_one (n d' : ℕ) (a12' a11' : ℤ) (ha11 : (a12' : ZMod (d' * n -
   simp [A, Matrix.det_fin_three, ← ha11]
   ring_nf; omega
 
-lemma A_PosDef (n d' : ℕ) (a12' a11' : ℤ)
+#check Int.mul
+lemma A_PosDef (n d' : ℕ) (a12' a11' : ℤ) (hdpos : 0 < d')
     (ha11 : (a12' : ZMod (d' * n - 1)).cast * (a12' : ZMod (d' * n - 1)).cast + ↑d' =
     (-a11' + (a12' : ZMod (d' * n - 1)).cast * (a12' : ZMod (d' * n - 1)).cast /
     ↑(d' * n - 1)) * ↑(d' * n - 1)) (hdn : 2 ≤ d' * n) :
     (A n d' a12' a11').toQuadraticMap'.PosDef :=
   QuadraticMap.Tenary.PosDef_iff (A n d' a12' a11') (A_isSymm n d' a12' a11')|>.2
-  ⟨by simp [A, -le_neg_add_iff_add_le]; sorry, by sorry,
-    by simp [A_det_eq_one n d' a12' a11' ha11 hdn]⟩
+  ⟨by
+    simp only [A, Fin.isValue, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_fin_one];
+    have : 0 < (-a11' + (↑a12' : ZMod (d' * n - 1)).cast * (↑a12' : ZMod (d' * n - 1)).cast /
+      ↑(d' * n - 1)) * ((d' * n - 1 : ℕ) : ℤ) := ha11 ▸ Int.add_lt_add_of_le_of_lt
+      (c := 0) (d := d') (mul_self_nonneg (a12' : ZMod (d' * n - 1)).cast) (by exact_mod_cast hdpos)
+    exact Int.pos_of_mul_pos_left this (by omega), by simpa [A, ← ha11, pow_two],
+  by simp [A_det_eq_one n d' a12' a11' ha11 hdn]⟩
 
 def A_toPosDefQuad (n d' : ℕ) (a12' a11' : ℤ)
     (ha11 : (a12' : ZMod (d' * n - 1)).cast * (a12' : ZMod (d' * n - 1)).cast + ↑d' =
     (-a11' + (a12' : ZMod (d' * n - 1)).cast * (a12' : ZMod (d' * n - 1)).cast /
     ↑(d' * n - 1)) * ↑(d' * n - 1)) (hdn : 2 ≤ d' * n) :
     PosDefQuadMap 3 :=
-  ⟨A n d' a12' a11', A_isSymm n d' a12' a11', A_PosDef n d' a12' a11' ha11 hdn⟩
+  ⟨A n d' a12' a11', A_isSymm n d' a12' a11', A_PosDef n d' a12' a11' (lt_of_le_of_ne (zero_le _)
+    (fun hd' ↦ by simp [← hd'] at hdn)) ha11 hdn⟩
 
 def PosDefQuad.one (n : ℕ) : PosDefQuadMap n where
   matrix := 1
@@ -55,7 +56,34 @@ def PosDefQuad.one (n : ℕ) : PosDefQuadMap n where
       specialize h2 i (Finset.mem_univ i)
       simp_all
 
--- #help tactic grw (transparency )
+lemma _root_.Finset.prod_legendreSym {ι} [DecidableEq ι] {s : Finset ι} (f : ι → ℤ)
+    {p : ℕ} [Fact p.Prime] : ∏ i ∈ s, legendreSym p (f i) = legendreSym p (∏ i ∈ s, f i) := by
+  induction s using Finset.induction_on with
+  | empty => simp
+  | insert a s ha ih =>
+    simp [Finset.prod_insert ha, ih, legendreSym.mul]
+
+lemma _root_.Finsupp.prod_legendreSym {ι M} [DecidableEq ι] [Zero M] (f : ι →₀ M) (g : ι → M → ℤ)
+    (p : ℕ) [Fact p.Prime] : legendreSym p (Finsupp.prod f g) =
+    Finsupp.prod f (fun i _ ↦ legendreSym p (g i (f i))) := by
+  rw [Finsupp.prod, ← Finset.prod_legendreSym, Finsupp.prod]
+
+lemma _root_.legendreSym.pow {a : ℤ} {n : ℕ} (p : ℕ) [Fact p.Prime] :
+    legendreSym p (a ^ n) = legendreSym p a ^ n := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [pow_succ, legendreSym.mul, ih, pow_succ]
+
+lemma _root_.legendreSym.add_left_dvd_self (p : ℕ) [Fact p.Prime] {a b : ℤ} (h : (p : ℤ) ∣ a) :
+    legendreSym p (a + b) = legendreSym p b := by
+  obtain ⟨k, rfl⟩ := h
+  rw [legendreSym.mod, add_comm, Int.add_mul_emod_self_left, ← legendreSym.mod]
+
+lemma _root_.legendreSym.sub_left_dvd_self (p : ℕ) [Fact p.Prime] {a b : ℤ} (h : (p : ℤ) ∣ a) :
+    legendreSym p (a - b) = legendreSym p (-b) := by
+  rw [← Int.add_neg_eq_sub, legendreSym.add_left_dvd_self _ h]
+
 open Matrix.SpecialLinearGroup in
 lemma Nat.quadResidue_to_sum_threeSq (n : ℕ) (hn1 : 2 ≤ n) (hn2 : ∃ d' : ℕ,
     0 < d' ∧ IsSquare (-d' : ZMod (d' * n - 1))) :
@@ -83,12 +111,76 @@ lemma Nat.quadResidue_to_sum_threeSq (n : ℕ) (hn1 : 2 ≤ n) (hn2 : ∃ d' : �
     eq_comm, Fin.sum_univ_three, ← pow_two] at hv
   exact hv
 
+-- lemma Int.odd_mod_four_eq_fac (n : ℕ) (hn : Odd n) : (n : ZMod 4) = ∏ p ∈ n.primeFactors with p % 4 = 3, (-1 : ZMod 4) ^ (p.factorization n % 2) := by
+--   have := n.factorization_prod_pow_eq_self (by grind)
+
+#check legendreSym.at_neg_one
 
 lemma Nat.mod_four_eq_two_to_sum_threeSq (n : ℕ) (hn : n % 4 = 2) :
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
+  haveI : 0 < n := by omega
+  have hn1 : (n - 1).Coprime (4 * n) := by sorry
+  obtain ⟨p, hp1, hp2, hp3⟩ := Nat.forall_exists_prime_gt_and_modEq (5 * n) (by omega) hn1
+  have hj' := Nat.cast_sub (R := ℤ) (by grind : n - 1 ≤ p) ▸
+    (dvd_sub_comm.1 <| Nat.modEq_iff_dvd.1 hp3)
+  norm_cast at hj'
+  obtain ⟨j, hj1⟩ := hj'
+  rw [Nat.sub_eq_iff_eq_add (by grind), mul_assoc, mul_comm n, ← mul_assoc,
+    ← Nat.add_sub_assoc (by omega), ← add_one_mul] at hj1
+  have hj2 : 1 < j := by
+    rw [hj1] at hp1
+    have := Nat.mul_lt_mul_right (by omega)|>.1 <| hp1.trans
+      (sub_one_lt (n := (4 * j + 1) * n) (by omega))
+    grind
+  set d' := 4 * j + 1 with d'_eq
+  have hp4 : p % 4 = 1 := by
+    simpa [hj1, d'_eq, add_mul, mul_assoc, @Nat.add_sub_assoc n 1 (by omega),
+      ← Nat.mod_sub_of_le (by rw [hn]; omega : 1 ≤ n % 4)]
+  refine Nat.quadResidue_to_sum_threeSq n (by omega) ⟨d', by omega, ?_⟩
+  haveI : Fact ((d' * n - 1).Prime) := ⟨hj1 ▸ hp2⟩
+  rw [← Int.cast_natCast, ← Int.cast_neg, ← legendreSym.eq_one_iff (d' * n - 1) (by
+    sorry)]
+  have hp5 : ∀ q ∈ d'.primeFactors, p % q = q - 1 := by
+    simp [hj1]
+    rintro q hq1 ⟨k, hk⟩ hd''
+    have : k ≠ 0 := fun hkk ↦ hd'' (by simpa [hkk] using hk)
+    simp +singlePass [hk, show n = (n - 1) + 1 by omega, mul_add]
+    rw [mul_one, show k = k - 1 + 1 by omega, mul_assoc, mul_add, mul_one, ← add_assoc,
+      ← mul_add, Nat.add_sub_assoc hq1.one_le, Nat.mul_add_mod_self_left q]
+    exact self_sub_mod q 1
+  rw [← neg_one_mul, legendreSym.mul, legendreSym.at_neg_one (ne_of_gt (by omega)),
+    ZMod.χ₄_nat_one_mod_four (by rw [← hj1, hp4]), one_mul]
+  nth_rw 2 [← d'.factorization_prod_pow_eq_self (by omega)]
+  rw [Nat.cast_finsuppProd, Finsupp.prod_legendreSym, Finsupp.prod]
+  simp [legendreSym.pow]
+  rw [show _ = ∏ a : d'.primeFactors, _ from Finset.prod_subtype _ (by simp) _]
+  haveI : ∀ q : d'.primeFactors, Fact q.1.Prime := by simp_all
+  have hq1 : ∀ q : d'.primeFactors, q.1 ≠ 2 := fun q hq ↦ by
+    have : 2 ∣ d' := hq ▸ (mem_primeFactors_of_ne_zero (by omega)|>.1 q.2).2
+    omega
+  conv =>
+    enter [1, 2, x, 1]
+    rw [legendreSym.quadratic_reciprocity' (hq1 x) (by omega),
+      neg_one_pow_eq_one_iff_even (by omega)|>.2 (Even.mul_left (hj1 ▸ ⟨p / 4, by omega⟩) _),
+      Nat.cast_sub (by omega), legendreSym.sub_left_dvd_self x.1
+      (Nat.cast_mul (α := ℤ) .. ▸ Int.dvd_mul_of_dvd_left (by
+      exact_mod_cast (mem_primeFactors_of_ne_zero (by omega)|>.1 x.2).2))]
+  simp only [cast_one, Int.reduceNeg, one_mul]
+
+
+
+  -- conv =>
+  --   enter [1, 2, x, 1]
+  --   rw [legendreSym.quadratic_reciprocity_one_mod_four]
+
   sorry
 
-lemma Nat.mod_four_odd_not_five_to_sum_threeSq (n : ℕ) (hn : n % 4 = 1 ∨ n % 4 = 3 ∨ n % 4 = 5) :
+#check neg_one_pow_eq_one_iff_even
+#check Nat.factorization_prod_pow_eq_self
+#check legendreSym.quadratic_reciprocity
+#check jacobiSym.at_neg_one
+#check jacobiSym.legendreSym.to_jacobiSym
+lemma Nat.mod_four_odd_not_five_to_sum_threeSq (n : ℕ) (hn : n % 8 = 1 ∨ n % 8 = 3 ∨ n % 8 = 5) :
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
   sorry
 
