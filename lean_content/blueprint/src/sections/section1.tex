@@ -4,36 +4,32 @@
 % \newtheorem{lemma}[theorem]{Lemma}
 % \newtheorem{definition}[theorem]{Definition}
 \newtheorem{remark}[theorem]{Remark}
+\newtheorem{construction}[theorem]{Construction}
 
 \numberwithin{equation}{section}
 
 % \begin{document}
 
-\section*{1.3\quad Quadratic forms}
+\section*{1\quad Quadratic forms}
 
-Let $A = (a_{i,j})$ be an $m\times n$ matrix with integer entries.
-We write $A^T$ for the transpose of $A$, so $A^T$ is the
-$n\times m$ matrix with entries $a^T_{i,j} = a_{j,i}$.
-Then
-\[
-  (A^T)^T = A
-\]
-for every matrix $A$, and if $A$ and $B$ are two matrices such that
-the product $AB$ is defined, then
-\[
-  (AB)^T = B^T A^T.
-\]
+% Let $A = (a_{i,j})$ be an $m\times n$ matrix with integer entries.
+% We write $A^T$ for the transpose of $A$, so $A^T$ is the
+% $n\times m$ matrix with entries $a^T_{i,j} = a_{j,i}$.
+% Then \[(A^T)^T = A\]
+% for every matrix $A$, and if $A$ and $B$ are two matrices such that
+% the product $AB$ is defined, then
+% \[(AB)^T = B^T A^T. \]
 
-For a positive integer $n$, let $M_n(\mathbb{Z})$ denote the ring of
-$n\times n$ integer matrices.
-A matrix $A\in M_n(\mathbb{Z})$ is called \emph{symmetric}
-if $A^T = A$.
+For a positive integer $n$, let $M_n(\mathbb{Z})$ denote the ring of $n\times n$ integer matrices.
+A matrix $A\in M_n(\mathbb{Z})$ is called \emph{symmetric} if $A^T = A$.
 If $A$ is symmetric and $U\in M_n(\mathbb{Z})$ is any matrix, then
-\[
-  (U^T A U)^T = U^T A^T (U^T)^T = U^T A U,
-\]
+\[ (U^T A U)^T = U^T A^T (U^T)^T = U^T A U, \]
 so $U^T A U$ is again symmetric.
 
+\begin{construction}
+\label{constr:SLn-action}
+\lean{Matrix.SpecialLinearGroup.instMulAction_sumOfThreeSq}
+\leanok
 Let $\mathrm{SL}_n(\mathbb{Z})$ denote the group of $n\times n$
 integer matrices of determinant $1$.
 This group acts on $M_n(\mathbb{Z})$ by
@@ -42,31 +38,53 @@ This group acts on $M_n(\mathbb{Z})$ by
   \qquad (A\in M_n(\mathbb{Z}),\ U\in \mathrm{SL}_n(\mathbb{Z})).
 \]
 Indeed,
-\[
-  A \cdot (UV) = (UV)^T A (UV)
+\[A \cdot (UV) = (UV)^T A (UV)
                = V^T(U^T A U)V
-               = (A\cdot U)\cdot V,
-\]
+               = (A\cdot U)\cdot V, \]
 and $A\cdot I = A$, so this is a right group action.
+\end{construction}
 
-\begin{definition}
+\begin{construction}
+\label{constr:mat_equivalence}
+\uses{constr:SLn-action}
+\lean{Matrix.SpecialLinearGroup.rel}
+\leanok
 Two matrices $A,B\in M_n(\mathbb{Z})$ are \emph{equivalent},
 and we write $A\sim B$, if there exists $U\in\mathrm{SL}_n(\mathbb{Z})$
 such that
 \[
   B = A\cdot U = U^T A U.
 \]
-\end{definition}
-
 It is easy to check that $\sim$ is an equivalence relation.
-Moreover, since $\det U = 1$ for $U\in\mathrm{SL}_n(\mathbb{Z})$, we have
+\end{construction}
+
+\begin{lemma}
+\label{lem:mat_det_preserved}
+\uses{constr:mat_equivalence}
+\lean{Matrix.SpecialLinearGroup.det_eq_det_of_rel}
+\leanok
+This equivalence relation preserves determinants, that is, if $A\sim B$, then $\det(A) = \det(B)$.
+\end{lemma}
+
+\begin{proof}
+Since $\det U = 1$ for $U\in\mathrm{SL}_n(\mathbb{Z})$, we have
 \[
   \det(A\cdot U) = \det(U^T A U)
                 = \det(U^T)\det(A)\det(U)
-                = \det(A),
-\]
-so the action preserves determinants.  
-If $A$ is symmetric then $A\cdot U$ is symmetric as well.
+                = \det(A),\]
+so the action preserves determinants. 
+\end{proof}
+
+\begin{lemma}
+\label{lem:mat_symm_preserved}
+\uses{constr:mat_equivalence}
+\lean{Matrix.SpecialLinearGroup.isSymm_iff_isSymm_of_rel}
+If $A\sim B$, then $A$ is symmetric if and only if $B$ is symmetric.
+\end{lemma}
+\begin{proof}
+Easy check both in math and in \sf{lean}.
+\end{proof}
+
 Thus for any integer $d$, this action partitions the set of symmetric
 $n\times n$ matrices of determinant $d$ into equivalence classes.
 
