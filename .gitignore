@@ -16,3 +16,4 @@ _site/
 web.*
 print.*
 .claude/*
+*/blueprint/web/*
