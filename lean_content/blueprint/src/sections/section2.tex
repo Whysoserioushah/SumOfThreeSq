@@ -1,332 +1,178 @@
-% \documentclass[11pt]{article}
-% \usepackage{amsmath,amssymb,amsthm}
-% \usepackage{fullpage}
-
-% \newtheorem{theorem}{Theorem}[section]
-% \newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{proposition}[theorem]{Proposition}
-\newtheorem{corollary}[theorem]{Corollary}
-\theoremstyle{definition}
-\newtheorem{definition}[theorem]{Definition}
-\newtheorem{remark}[theorem]{Remark}
-
-\numberwithin{equation}{section}
-
-\newcommand{\e}{\mathrm{e}}
-\newcommand{\Z}{\mathbb{Z}}
-\newcommand{\R}{\mathbb{R}}
-
-\begin{document}
-
-\section*{4\quad Weyl's inequality}
-
-In this section we develop one of the basic tools of the analytic
-method in additive number theory, due originally to Weyl.  Its purpose
-is to give nontrivial bounds for exponential sums of the form
-\[
-  S(\alpha) = \sum_{n\le N} \e(\alpha n^k),
-  \qquad \e(x) := \exp(2\pi i x),
-\]
-where $k\ge2$ is fixed and $\alpha\in\R$.
-These bounds play a central role in the Hardy--Littlewood circle
-method.
-
-We begin with a classical theorem from Diophantine approximation.
-
-\subsection*{4.1\quad Dirichlet's approximation theorem}
-
-\begin{theorem}[Dirichlet]\label{thm:dirichlet}
-Let $\alpha$ be a real number and $Q\ge1$ be an integer.
-Then there exist integers $a$ and $q$ with
-\[
-  1\le q\le Q
-  \qquad\text{and}\qquad
-  \Bigl|\alpha - \frac{a}{q}\Bigr|
-  \le \frac{1}{qQ}.
-\]
-\end{theorem}
-
-\begin{proof}
-Consider the $Q+1$ numbers
-\[
-  \{\alpha\},\{2\alpha\},\dots,\{(Q+1)\alpha\}\in[0,1),
-\]
-where $\{x\}$ denotes the fractional part of $x$.
-Partition $[0,1)$ into $Q$ intervals of the form
-\[
-  I_j = \Bigl[\frac{j-1}{Q},\frac{j}{Q}\Bigr)
-  \qquad (j=1,\dots,Q).
-\]
-By the pigeonhole principle, there exist integers $1\le r<s\le Q+1$
-such that $\{r\alpha\}$ and $\{s\alpha\}$ lie in the same interval
-$I_j$.
-Then
-\[
-  \bigl|\{r\alpha\}-\{s\alpha\}\bigr|
-  \le \frac1Q.
-\]
-Write $q = s-r$, so $1\le q\le Q$, and set
-\[
-  a = \lfloor s\alpha\rfloor - \lfloor r\alpha\rfloor.
-\]
-We have
-\[
-  q\alpha
-  = (s-r)\alpha
-  = (\lfloor s\alpha\rfloor - \lfloor r\alpha\rfloor)
-    + (\{s\alpha\}-\{r\alpha\})
-  = a + \theta
-\]
-with $|\theta|\le1/Q$.  Hence
-\[
-  \Bigl|\alpha - \frac{a}{q}\Bigr|
-  = \frac{|\theta|}{q}
-  \le \frac{1}{qQ},
-\]
-as required.
-\end{proof}
-
-In applications, we usually choose $Q$ as a function of $N$ and then
-apply the theorem to approximate $\alpha$ by a rational $a/q$ with
-controlled denominator.
-
-\subsection*{4.2\quad Difference operators}
-
-A key device in the proof of Weyl's inequality is the use of finite
-difference operators.
+\section*{2\quad Ternary Quadratic Forms}
 
 \begin{definition}
-Let $f:\Z\to\mathbb{C}$ and let $h\in\Z$.
-The \emph{forward difference} of $f$ with step $h$ is the function
-$\Delta_h f:\Z\to\mathbb{C}$ given by
+\label{def:QuadMap_Tenary_G}
+\lean{QuadraticMap.Tenary.G}
+\leanok
+Let $A = (a_{i,j})$ be a $3\times 3$ symmetric matrix with integer entries, and
+let
 \[
-  (\Delta_h f)(x) = f(x+h) - f(x).
+F_A(x_1,x_2,x_3) = \sum_{1 \le i,j \le 3} a_{i,j} x_i x_j
 \]
-More generally, for steps $h_1,\dots,h_r\in\Z$, the \emph{iterated
-forward difference} is defined inductively by
+be the associated ternary quadratic form. Define the binary quadratic form
 \[
-  \Delta_{h_1,\dots,h_r}
-  := \Delta_{h_r}\circ\cdots\circ \Delta_{h_1}.
+G_A(x_2,x_3)
 \]
+by the identity
+\begin{equation}\label{eq:1.3}
+a_{1,1} F_A(x_1,x_2,x_3)
+= (a_{1,1} x_1 + a_{1,2} x_2 + a_{1,3} x_3)^2 + G_A(x_2,x_3).
+\end{equation}
 \end{definition}
 
-We record two simple but important facts.
+\medskip
 
-\begin{lemma}\label{lem:diff-linear}
-The operators $\Delta_h$ are linear, and they commute:
+\begin{lemma}
+\label{lem:ternary_posdef_iff}
+\lean{QuadraticMap.Tenary.PosDef_iff}
+\emph{The ternary form $F_A$ is positive-definite if and only if the three integers}
 \[
-  \Delta_h(af+bg) = a\,\Delta_h f + b\,\Delta_h g,
-  \qquad
-  \Delta_{h_1}\Delta_{h_2}
-  = \Delta_{h_2}\Delta_{h_1}.
+a_{1,1},\qquad d' = a_{1,1}a_{2,2} - a_{1,2}^2,\qquad 
+d = \det(A)
 \]
+\emph{are all positive.}
 \end{lemma}
 
 \begin{proof}
-Both assertions are immediate from the definition.
-\end{proof}
-
-\begin{lemma}\label{lem:poly-diff}
-Let $k\ge0$ and consider the polynomial $f(x)=x^k$.
-Then for each $r\ge1$ and each $h_1,\dots,h_r\in\Z$ we have
+Assume first that $F_A$ is positive-definite.  
+Fix integers $x_2, x_3$ such that $(x_2,x_3) \neq (0,0)$, and choose
 \[
-  \Delta_{h_1,\dots,h_r} f(x)
-\]
-is a polynomial in $x$ of degree $k-r$, with leading coefficient
-$k(k-1)\cdots(k-r+1)\,h_1\cdots h_r$.  In particular,
-$\Delta_{h_1,\dots,h_k} x^k$ is a constant (independent of $x$), and
-$\Delta_{h_1,\dots,h_r} x^k\equiv0$ for $r>k$.
-\end{lemma}
-
-\begin{proof}
-We argue by induction on $r$.
-For $r=1$ we have
-\[
-  \Delta_{h_1} x^k
-  = (x+h_1)^k - x^k
-  = k h_1 x^{k-1} + \text{(lower terms)},
-\]
-so the statement holds for $r=1$.
-Assuming it holds for $r$, applying one more difference yields
-\[
-  \Delta_{h_{r+1}}\bigl(\Delta_{h_1,\dots,h_r} x^k\bigr)
-\]
-and subtracts two polynomials of degree $k-r$, so the degree drops to
-$k-(r+1)$, and the leading coefficient is multiplied by $k-r$ and by
-$h_{r+1}$.
-The final assertions follow immediately.
-\end{proof}
-
-\subsection*{4.3\quad Weyl differencing}
-
-We now apply difference operators to exponential sums.
-
-\begin{lemma}[Weyl differencing]\label{lem:weyl-diff}
-Let $f:\Z\to\R$ and let $H\ge1$ be an integer.
-Define
-\[
-  S = \sum_{n=1}^N \e(f(n)).
+x_1 = -\frac{a_{1,2} x_2 + a_{1,3} x_3}{a_{1,1}}.
 \]
 Then
 \[
-  |S|^2
-  \le N + 2\sum_{h=1}^{H-1}
-        \Bigl(1-\frac{h}{H}\Bigr)
-        \Bigl|\sum_{n=1}^{N-h}\e\bigl(f(n+h)-f(n)\bigr)\Bigr|
-    + \frac{N^2}{H}.
+a_{1,1} F_A(x_1, x_2, x_3)
+= (a_{1,1}x_1 + a_{1,2}x_2 + a_{1,3}x_3)^2 + G_A(x_2,x_3)
+= G_A(x_2,x_3).
 \]
-\end{lemma}
+Since $F_A$ is positive-definite, the left side is $>0$, so $G_A$ is a positive‐definite
+binary quadratic form. By Lemma 1.1 this implies
+\[
+a_{1,1} > 0,\qquad d' = a_{1,1}a_{2,2} - a_{1,2}^2 > 0.
+\]
+Also the discriminant of $G_A$ is $d > 0$, hence $\det(A) > 0$.
 
-\begin{proof}
-This is a standard variant of the van der Corput inequality.
-Consider
+Conversely, assume $a_{1,1}, d', d > 0$.  
+Then $G_A$ is positive-definite (Lemma 1.1).  
+If $F_A(x_1,x_2,x_3) = 0$, then \eqref{eq:1.3} gives
 \[
-  S = \sum_{n=1}^N a_n,
-  \qquad a_n = \e(f(n)).
+(a_{1,1}x_1 + a_{1,2}x_2 + a_{1,3}x_3)^2 + G_A(x_2,x_3) = 0.
 \]
-Then
-\[
-  |S|^2 = \sum_{n,m=1}^N a_n\overline{a_m}
-  = \sum_{h=-(N-1)}^{N-1}
-      \sum_{\substack{1\le n,m\le N\\n-m=h}}
-      a_n\overline{a_m}.
-\]
-For fixed $h$, the inner sum has at most $N-|h|$ terms.
-Using the bound $|\sum_{j=1}^M z_j|\le M\max_j|z_j|$ and grouping
-positive and negative $h$, one obtains the inequality in the
-statement; the details are routine and omitted.
+Since both terms on the right are nonnegative, they must vanish.  
+Thus $x_2 = x_3 = 0$, and then the linear term forces $x_1 = 0$.  
+Hence $F_A$ is positive-definite. 
 \end{proof}
 
-Iterating Lemma~\ref{lem:weyl-diff} and using Lemma~\ref{lem:poly-diff}
-for $f(n) = \alpha n^k$ leads to nontrivial estimates for
-$S(\alpha)$.
-
-\subsection*{4.4\quad Weyl's inequality}
-
-We state and prove a standard form of Weyl's inequality for polynomial
-exponential sums.
-
-\begin{theorem}[Weyl's inequality]\label{thm:weyl}
-Let $k\ge2$ and $N\ge1$.  Let
+\begin{lemma}
+\lean{QuadraticMap.Tenary.lemma4a}
+Let $B = (b_{i,j})$ be a symmetric $3\times 3$ matrix such that $F_B$ is
+positive-definite, and let $G_B$ be the corresponding positive-definite binary quadratic form, defined by
 \[
-  S(\alpha) = \sum_{n=1}^N \e(\alpha n^k),
-  \qquad \alpha\in\R.
+b_{1,1} F_B(y_1,y_2,y_3)
+= (b_{1,1}y_1 + b_{1,2}y_2 + b_{1,3}y_3)^2 + G_B(y_2, y_3).
 \]
-Suppose that there exist coprime integers $a,q$ with
+For each $V \in SL_2(\mathbb{Z})$, define
 \[
-  1\le q\le N^k
-  \qquad\text{and}\qquad
-  \Bigl|\alpha - \frac{a}{q}\Bigr|\le \frac{1}{q^2}.
+A^* = (V^*)^T B V^*,
 \]
-Then for every $\varepsilon>0$ we have
+and let $G_{A^*}$ be the binary form attached to $A^*$.  
+For integers $r,s$, define
 \[
-  |S(\alpha)|
-  \ll_\varepsilon
-  N^{1+\varepsilon}
-  \Bigl(q^{-1} + N^{-1}
-        + q N^{-k}\Bigr)^{2^{1-k}}.
+V_{r,s} =
+\begin{pmatrix}
+1 & r & s \\
+0 & v_{11} & v_{12} \\
+0 & v_{21} & v_{22}
+\end{pmatrix}
+\in SL_3(\mathbb{Z}),
+\qquad
+A_{r,s} = V_{r,s}^T B V_{r,s}.
 \]
-\end{theorem}
-
-\begin{proof}[Sketch of proof]
-We apply Lemma~\ref{lem:weyl-diff} repeatedly, $k-1$ times.
-At each step we replace $f(n)$ by a finite difference
-$f(n+h)-f(n)$; after $k-1$ iterations, Lemma~\ref{lem:poly-diff}
-shows that the resulting phase function is essentially linear in $n$.
-Sums with linear phase can be evaluated explicitly, leading to an
-estimate in terms of the rational approximation $a/q$ to $\alpha$.
-The exponent $2^{1-k}$ arises from the $k-1$ applications of
-Cauchy--Schwarz.  The full details follow the usual arguments in Weyl's
-method; see, for example, Vaughan's book on the Hardy--Littlewood
-method.
-\end{proof}
-
-\begin{remark}
-The precise shape of the bound is less important than the fact that it
-is nontrivial (i.e., $|S(\alpha)| = o(N)$) whenever
+Then $a_{1,1} = b_{1,1}$ and
 \[
-  q \ll N^{k-\delta}
+a_{1,1} F_{A_{r,s}}(x_1,x_2,x_3)
+= (a_{1,1}x_1 + a_{1,2}x_2 + a_{1,3}x_3)^2 + G_{A^*}(x_2,x_3),
 \]
-for some fixed $\delta>0$ and $\alpha$ is reasonably well approximated
-by $a/q$.  This is the essential input needed in the circle method.
-\end{remark}
-
-\subsection*{4.5\quad Hua's lemma}
-
-Weyl's inequality gives pointwise bounds for $S(\alpha)$.
-For some applications it is more convenient to have mean value
-estimates for powers of $S(\alpha)$ integrated over $\alpha$.
-
-\begin{theorem}[Hua's lemma]\label{thm:hua}
-Let $k\ge2$ and define
-\[
-  S(\alpha) = \sum_{n=1}^N \e(\alpha n^k).
-\]
-Then for every $\varepsilon>0$,
-\[
-  \int_0^1 |S(\alpha)|^{2^k} \, d\alpha
-  \ll_\varepsilon N^{2^k - k + \varepsilon}.
-\]
-\end{theorem}
-
-\begin{proof}
-We outline the standard argument by induction on $k$.
-For $k=1$ we have
-\[
-  S(\alpha) = \sum_{n=1}^N \e(\alpha n)
-\]
-and the left-hand side with exponent $2$ is easily evaluated:
-\[
-  \int_0^1 |S(\alpha)|^2\,d\alpha
-  = \sum_{m,n\le N}
-      \int_0^1 \e(\alpha(n-m))\,d\alpha
-  = \sum_{n\le N}1
-  = N,
-\]
-which agrees with the claimed bound $N^{2^1-1}=N$.
-
-Assume the lemma holds for $k-1$.
-Write
-\[
-  |S(\alpha)|^2
-  = \sum_{h=-(N-1)}^{N-1}
-      c_h\,\e(\alpha h),
-\]
-where $c_h$ counts the number of pairs $(m,n)$ with $m^k-n^k=h$.
-Then
-\[
-  \int_0^1 |S(\alpha)|^{2^k} \, d\alpha
-  = \int_0^1 |S(\alpha)|^2 \, |S(\alpha)|^{2^{k}-2} \, d\alpha.
-\]
-Using Cauchy--Schwarz, one bounds this integral in terms of
-$\int_0^1 |S(\alpha)|^{2^{k-1}}\,d\alpha$ and a sum over $h$ of
-$|c_h|^2$.
-The structure of the equation $m^k-n^k=h$ shows that $c_h$ is bounded
-by the number of representations of $h$ as a sum of $k-1$st powers,
-which in turn is controlled by the inductive hypothesis.
-Carrying out these steps (which require some bookkeeping of
-exponents) leads to
-\[
-  \int_0^1 |S(\alpha)|^{2^k} \, d\alpha
-  \ll_\varepsilon N^{2^k-k+\varepsilon}.
-\]
-For a fully detailed proof see Hua's book or any standard reference on
-the circle method.
-\end{proof}
-
-\subsection*{4.6\quad Consequences and remarks}
-
-Weyl's inequality and Hua's lemma are fundamental tools in the analytic
-theory of Waring's problem and related questions.
-Typically one uses Weyl's inequality to control $S(\alpha)$ on the
-``minor arcs'' of the circle method decomposition, while Hua's lemma
-controls certain mean values appearing after several applications of
-Cauchy--Schwarz.
+and $A^*$ is independent of $r$ and $s$.
 
 \medskip
-\noindent
-Both results extend to more general polynomial phases and to systems of
-equations, but the essential ideas are already captured by the case
-$f(n)=\alpha n^k$ treated here.
 
-\end{document}
+\begin{proof}
+A direct calculation using the block structure of $V_{r,s}$ shows that the
+upper‐left $1\times 1$ entry of $A_{r,s}$ equals $b_{1,1}$ and that the lower
+$2\times 2$ block of $A_{r,s}$ equals the matrix $A^*$.  
+Substituting these expressions into \eqref{eq:1.3} gives the identity claimed.
+\end{proof}
+
+\bigskip
+
+\begin{lemma}
+\emph{If integers $u_{1,1},u_{2,1},u_{3,1}$ satisfy}
+\[
+\gcd(u_{1,1},u_{2,1},u_{3,1}) = 1,
+\]
+\emph{then there exist integers $u_{i,j}$ for $i=1,2,3$ and $j=2,3$ such that the matrix}
+\[
+U = (u_{i,j}) \in SL_3(\mathbb{Z}).
+\]
+\end{lemma}
+
+\begin{proof}
+Let $\gcd(u_{1,1},u_{2,1}) = a$.  Choose integers $u_{1,2},u_{2,2}$ such that
+\[
+u_{1,1}u_{2,2} - u_{2,1}u_{1,2} = a.
+\]
+Since $\gcd(a,u_{3,1}) = 1$, choose integers $u_{3,3}, b$ such that
+\[
+a u_{3,3} - b u_{3,1} = 1.
+\]
+Set
+\[
+u_{1,3} = b,\qquad
+u_{2,3} = 0,\qquad
+u_{3,2} = 0.
+\]
+Then the resulting matrix $U$ has determinant $1$.
+\end{proof}
+
+
+\begin{lemma}
+Every equivalence class of positive-definite ternary quadratic forms of discriminant $d$ contains a representative
+\[
+F(x_1,x_2,x_3) = \sum_{i,j} a_{i,j} x_i x_j
+\quad\text{with}\quad
+2 \max\{|a_{1,2}|, |a_{1,3}|\} \le a_{1,1} < 3\sqrt{d}.
+\]
+\end{lemma}
+
+\begin{proof}
+Let $F$ be positive-definite with determinant $d$, and let $C$ be its coefficient
+matrix. Let $a_{1,1}$ be the smallest positive integer represented by $F$, so that
+\[
+F(u_{1,1}, u_{2,1}, u_{3,1}) = a_{1,1}
+\]
+for some integers $u_{1,1},u_{2,1},u_{3,1}$.  
+Replacing the vector by a primitive one if necessary, we may assume the
+three integers are coprime.  
+By Lemma~1.5 choose $U \in SL_3(\mathbb{Z})$ whose first column is this
+vector, and set
+\[
+B = U^T C U.
+\]
+Then $F$ is equivalent to $F_B$, and $b_{1,1} = a_{1,1}$ is still minimal.
+Lemma~1.3 then implies the decomposition
+\[
+a_{1,1} F_B(x_1,x_2,x_3)
+= (b_{1,1} x_1 + b_{1,2}x_2 + b_{1,3}x_3)^2 + G_B(x_2,x_3),
+\]
+with $G_B$ positive-definite.  
+By adjusting $x_1$ via integer translations one arranges
+\[
+|b_{1,2}|,\ |b_{1,3}| \le \frac{a_{1,1}}{2}.
+\]
+The discriminant condition then gives
+\[
+a_{1,1}^2 \le 9 d,
+\]
+i.e. $a_{1,1} < 3\sqrt{d}$, completing the proof.
+\end{proof}

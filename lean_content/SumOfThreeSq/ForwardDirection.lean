@@ -194,6 +194,14 @@ lemma Nat.mod_four_eq_two_to_sum_threeSq (n : ℕ) (hn : n % 4 = 2) :
     simp [Finsupp.prod]
   rw [← this, ZMod.χ₄_nat_one_mod_four (by omega)]
 
-lemma Nat.mod_four_odd_not_five_to_sum_threeSq (n : ℕ) (hn : n % 8 = 1 ∨ n % 8 = 3 ∨ n % 8 = 5) :
+lemma Nat.sum_threeSq_of_mod_eight_eq_one {n : ℕ} (hn : n % 8 = 1) :
+    ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
+  sorry
+
+lemma Nat.sum_threeSq_of_mod_eight_eq_three {n : ℕ} (hn : n % 8 = 3) :
+    ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
+  sorry
+
+lemma Nat.sum_threeSq_of_mod_eight_eq_five {n : ℕ} (hn : n % 8 = 5) :
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
   sorry
