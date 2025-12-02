@@ -8,6 +8,7 @@ open Verso Genre Blog
 
 #doc (Page) "About This Project" =>
 
+# my title
 
-This is a collaborative project to formalize a proof of the sum of three square
-[asfjalsdf](https://whysoserioushah.github.io/SumOfThreeSq/prereq).
+This is a collaborative project to formalize a proof of the sum of three square.
+[Setup](https://whysoserioushah.github.io/SumOfThreeSq/prereq)
