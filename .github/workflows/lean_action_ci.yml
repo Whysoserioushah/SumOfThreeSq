@@ -37,5 +37,5 @@ jobs:
         uses: jcreedcmu/docgen-action@ef6d9dc273d5b747d22cb87a569cd91924164168
         with: 
           blueprint: true
-          api-docs: true
+          api-docs: false # TEMPORARILY turn off docs to test CI faster
           lake-package-directory: "lean_content"
