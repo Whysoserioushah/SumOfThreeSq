@@ -90,6 +90,11 @@ lemma _root_.QuadraticMap.PosDef_ofEquiv {M1 M2} [AddCommGroup M1] [AddCommGroup
   apply hQ1
   simpa
 
+lemma PosDef_if_PosDef_of_rel {A B : M(n, ℤ)} (h : rel A B) (hA : A.toQuadraticMap'.PosDef)
+    : B.toQuadraticMap'.PosDef := by
+  obtain ⟨U⟩ := nonempty_isometryEquiv_of_rel h
+  exact QuadraticMap.PosDef_ofEquiv U hA
+
 lemma _root_.QuadraticMap.Binary.PosDef_iff {A : M(Fin 2, ℤ)} (hA : A.IsSymm) :
     A.toQuadraticMap'.PosDef ↔ 1 ≤ A 0 0 ∧ 1 ≤ A.det := by
   have h1 : A.toQuadraticMap' ![1, 0] = A 0 0 := by
