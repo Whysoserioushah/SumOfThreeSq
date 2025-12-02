@@ -70,12 +70,20 @@ lemma isSymm_of_rel (h : rel A B) (ha : A.IsSymm) : B.IsSymm := by
 lemma isSymm_iff_isSymm_of_rel (h : rel A B) : A.IsSymm ↔ B.IsSymm :=
   ⟨isSymm_of_rel h, isSymm_of_rel <| Setoid.symm' _ h⟩
 
+@[simps]
 def toQuadraticMap'EquivSMul (A : M(n, R)) (U : SL(n, R)) :
     A.toQuadraticMap'.IsometryEquiv (U • A).toQuadraticMap' where
   __ := MulAction.toPerm (Uᵀ⁻¹)
   map_add' := by simp [smul_add']
   map_smul' := by simp [smul_comm]
   map_app' v := by simp [toQuadraticMap'_apply, smul_def', smul_def, dotProduct_mulVec_eq]
+
+lemma toQuadraticMap'EquivSMul_apply (A : M(n, R)) (U : SL(n, R)) (v : n → R) :
+    (toQuadraticMap'EquivSMul A U) v = Uᵀ⁻¹ • v := by rfl
+-- lemma smul_toQuadraticMap' (U : SL(n, R)) (A : M(n, R)) :
+--     (U • A).toQuadraticMap' = U.toGL • A.toQuadraticMap' := by
+--   ext v
+--   simp [smul_def', toQuadraticMap'_apply, dotProduct_mulVec_eq]
 
 theorem nonempty_isometryEquiv_of_rel {A B : M(n, R)} (h : rel A B) :
     Nonempty (A.toQuadraticMap'.IsometryEquiv B.toQuadraticMap') :=
@@ -116,6 +124,9 @@ def EquivalentQuad (n : ℕ) : Setoid (PosDefQuadMap n) where
   iseqv.refl _ := rel.refl _
   iseqv.symm := rel.symm
   iseqv.trans := rel.trans
+
+lemma EquivalentQuad_iff {n : ℕ} {Q1 Q2 : PosDefQuadMap n} :
+    EquivalentQuad n Q1 Q2 ↔ rel Q1.matrix Q2.matrix := Iff.rfl
 
 lemma det_eq_of_equiv_quadMap {n : ℕ} {Q1 Q2 : PosDefQuadMap n}
     (h : EquivalentQuad n Q1 Q2) : Q1.matrix.det = Q2.matrix.det :=

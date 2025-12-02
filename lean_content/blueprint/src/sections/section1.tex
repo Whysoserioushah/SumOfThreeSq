@@ -4,36 +4,32 @@
 % \newtheorem{lemma}[theorem]{Lemma}
 % \newtheorem{definition}[theorem]{Definition}
 \newtheorem{remark}[theorem]{Remark}
+\newtheorem{construction}[theorem]{Construction}
 
 \numberwithin{equation}{section}
 
 % \begin{document}
 
-\section*{1.3\quad Quadratic forms}
+\section*{1\quad Quadratic forms}
 
-Let $A = (a_{i,j})$ be an $m\times n$ matrix with integer entries.
-We write $A^T$ for the transpose of $A$, so $A^T$ is the
-$n\times m$ matrix with entries $a^T_{i,j} = a_{j,i}$.
-Then
-\[
-  (A^T)^T = A
-\]
-for every matrix $A$, and if $A$ and $B$ are two matrices such that
-the product $AB$ is defined, then
-\[
-  (AB)^T = B^T A^T.
-\]
+% Let $A = (a_{i,j})$ be an $m\times n$ matrix with integer entries.
+% We write $A^T$ for the transpose of $A$, so $A^T$ is the
+% $n\times m$ matrix with entries $a^T_{i,j} = a_{j,i}$.
+% Then \[(A^T)^T = A\]
+% for every matrix $A$, and if $A$ and $B$ are two matrices such that
+% the product $AB$ is defined, then
+% \[(AB)^T = B^T A^T. \]
 
-For a positive integer $n$, let $M_n(\mathbb{Z})$ denote the ring of
-$n\times n$ integer matrices.
-A matrix $A\in M_n(\mathbb{Z})$ is called \emph{symmetric}
-if $A^T = A$.
+For a positive integer $n$, let $M_n(\mathbb{Z})$ denote the ring of $n\times n$ integer matrices.
+A matrix $A\in M_n(\mathbb{Z})$ is called \emph{symmetric} if $A^T = A$.
 If $A$ is symmetric and $U\in M_n(\mathbb{Z})$ is any matrix, then
-\[
-  (U^T A U)^T = U^T A^T (U^T)^T = U^T A U,
-\]
+\[ (U^T A U)^T = U^T A^T (U^T)^T = U^T A U, \]
 so $U^T A U$ is again symmetric.
 
+\begin{construction}
+\label{constr:SLn-action}
+\lean{Matrix.SpecialLinearGroup.instMulAction_sumOfThreeSq}
+\leanok
 Let $\mathrm{SL}_n(\mathbb{Z})$ denote the group of $n\times n$
 integer matrices of determinant $1$.
 This group acts on $M_n(\mathbb{Z})$ by
@@ -42,31 +38,53 @@ This group acts on $M_n(\mathbb{Z})$ by
   \qquad (A\in M_n(\mathbb{Z}),\ U\in \mathrm{SL}_n(\mathbb{Z})).
 \]
 Indeed,
-\[
-  A \cdot (UV) = (UV)^T A (UV)
+\[A \cdot (UV) = (UV)^T A (UV)
                = V^T(U^T A U)V
-               = (A\cdot U)\cdot V,
-\]
+               = (A\cdot U)\cdot V, \]
 and $A\cdot I = A$, so this is a right group action.
+\end{construction}
 
-\begin{definition}
+\begin{construction}
+\label{constr:mat_equivalence}
+\uses{constr:SLn-action}
+\lean{Matrix.SpecialLinearGroup.rel}
+\leanok
 Two matrices $A,B\in M_n(\mathbb{Z})$ are \emph{equivalent},
 and we write $A\sim B$, if there exists $U\in\mathrm{SL}_n(\mathbb{Z})$
 such that
 \[
   B = A\cdot U = U^T A U.
 \]
-\end{definition}
-
 It is easy to check that $\sim$ is an equivalence relation.
-Moreover, since $\det U = 1$ for $U\in\mathrm{SL}_n(\mathbb{Z})$, we have
+\end{construction}
+
+\begin{lemma}
+\label{lem:mat_det_preserved}
+\uses{constr:mat_equivalence}
+\lean{Matrix.SpecialLinearGroup.det_eq_det_of_rel}
+\leanok
+This equivalence relation preserves determinants, that is, if $A\sim B$, then $\det(A) = \det(B)$.
+\end{lemma}
+
+\begin{proof}
+Since $\det U = 1$ for $U\in\mathrm{SL}_n(\mathbb{Z})$, we have
 \[
   \det(A\cdot U) = \det(U^T A U)
                 = \det(U^T)\det(A)\det(U)
-                = \det(A),
-\]
-so the action preserves determinants.  
-If $A$ is symmetric then $A\cdot U$ is symmetric as well.
+                = \det(A),\]
+so the action preserves determinants. 
+\end{proof}
+
+\begin{lemma}
+\label{lem:mat_symm_preserved}
+\uses{constr:mat_equivalence}
+\lean{Matrix.SpecialLinearGroup.isSymm_iff_isSymm_of_rel}
+If $A\sim B$, then $A$ is symmetric if and only if $B$ is symmetric.
+\end{lemma}
+\begin{proof}
+Easy check both in math and in \sf{lean}.
+\end{proof}
+
 Thus for any integer $d$, this action partitions the set of symmetric
 $n\times n$ matrices of determinant $d$ into equivalence classes.
 
@@ -101,35 +119,54 @@ then the quadratic form can be written concisely as
 
 \begin{definition}
 The \emph{discriminant} of the quadratic form $F_A$ is defined to be
-\[
-  \operatorname{disc}(F_A) := \det(A).
-\]
+\[ \operatorname{disc}(F_A) := \det(A). \]
 \end{definition}
 
+\begin{definition}
+\label{def:QuadMap_equiv}
+\lean{Matrix.SpecialLinearGroup.EquivalentQuad}
+\leanok
 If $A$ and $B$ are symmetric matrices and $F_A, F_B$ their associated
 quadratic forms, we say $F_A$ and $F_B$ are \emph{equivalent}, and write
 $F_A\sim F_B$, if $A\sim B$ as matrices; that is, if there exists
 $U\in\mathrm{SL}_n(\mathbb{Z})$ with $B = U^T A U$.
-Equivalence of forms is again an equivalence relation, and equivalent
-forms have the same discriminant.
-
-\begin{definition}
-A quadratic form $F_A$ \emph{represents} an integer $N$ if there exist
-integers $x_1,\dots,x_n$ such that
-\[
-  F_A(x_1,\dots,x_n) = N.
-\]
+Equivalence of forms is again an equivalence relation.
 \end{definition}
 
+\begin{lemma}
+\label{lem:QuadMap_equiv_to_det_eq}
+\lean{Matrix.SpecialLinearGroup.det_eq_of_equiv_quadMap}
+\leanok
+Equivalent forms have the same discriminant.
+\end{lemma}
+
+\begin{proof}
+\uses{lem:mat_det_preserved}
+Trivial from Lemma~\ref{lem:mat_det_preserved}.
+\end{proof}
+
+\begin{definition}
+\lean{Nat.IsRepresentedBy}
+\leanok
+A quadratic form $F_A$ \emph{represents} an natural number $N$ if there exist
+integers $x_1,\dots,x_n$ such that
+\[ F_A(x_1,\dots,x_n) = N. \]
+\end{definition}
+
+\begin{lemma}
+\label{lem:QuadMap_equiv_represents}
+\lean{Matrix.SpecialLinearGroup.toQuadraticMap'EquivSMul_apply}
+\leanok
 If $F_A\sim F_B$, then $B = U^T A U$ for some
 $U\in\mathrm{SL}_n(\mathbb{Z})$, and for any integer vector $x$ we have
-\[
-  F_A(x)
-  = x^T A x
-  = x^T U^T B U x
-  = (Ux)^T B (Ux)
-  = F_B(Ux).
-\]
+\[F_A(x) = F_B(U \cdot x).\]
+\end{lemma}
+
+\begin{proof}
+By direct calculation.
+\end{proof}
+
+
 Hence, if $F_A$ represents $N$, then $F_B$ also represents $N$.
 Therefore any two equivalent forms represent exactly the same set of
 integers.
@@ -139,6 +176,7 @@ form equivalent to $x_1^2+\cdots+x_n^2$ represents all non–negative
 integers.
 
 \begin{definition}
+\leanok
 A quadratic form $F_A$ is \emph{positive–definite} if
 \[
   F_A(x_1,\dots,x_n) > 0
@@ -157,6 +195,11 @@ discriminant $1$.
 \subsection*{Binary quadratic forms}
 
 We now restrict attention to the case $n=2$.
+
+\begin{definition}
+\label{def:PosDefQuadMap}
+\lean{PosDefQuadMap}
+\leanok
 Let
 \[
   A =
@@ -175,8 +218,12 @@ The discriminant of $F_A$ is
 \[
   d = \det(A) = a_{1,1}a_{2,2} - a_{1,2}^2.
 \]
+\end{definition}
 
-\begin{lemma}\label{lem:binary-posdef}
+
+\begin{lemma}
+\label{lem:binary_posdef}
+\lean{QuadraticMap.Binary.PosDef_iff}
 The binary quadratic form $F_A$ is positive–definite if and only if
 \[
   a_{1,1} > 0
@@ -220,7 +267,10 @@ Hence $F_A$ is positive–definite.
 
 The next lemma is a reduction statement for binary forms.
 
-\begin{lemma}\label{lem:binary-reduction}
+\begin{lemma}
+\label{lem:binary-reduction}
+\lean{binaryQuadMap_bound1}
+\leanok
 Let $d>0$.
 Every equivalence class of positive–definite binary quadratic forms of
 discriminant $d$ contains a form
@@ -237,6 +287,7 @@ such that
 \end{lemma}
 
 \begin{proof}
+\uses{def:QuadMap_equiv}
 Let $F$ be a positive–definite binary quadratic form of discriminant
 $d$, and let $C$ be the corresponding symmetric matrix.
 Among all forms equivalent to $F$, choose one whose associated matrix
@@ -331,7 +382,9 @@ desired properties.
 
 Now we specialize to discriminant $d=1$.
 
-\begin{theorem}\label{thm:binary-disc1}
+\begin{theorem}
+\label{thm:binary-disc1}
+\lean{binaryQuadMap_of_det_eq_one}
 Every positive–definite binary quadratic form of discriminant $1$
 is equivalent to the form
 \[
@@ -340,6 +393,7 @@ is equivalent to the form
 \end{theorem}
 
 \begin{proof}
+\uses{lem:binary-reduction}
 Let $F$ be a positive–definite binary quadratic form of discriminant
 $d=1$, and let $F_A$ be a reduced representative as in
 Lemma~\ref{lem:binary-reduction}.
