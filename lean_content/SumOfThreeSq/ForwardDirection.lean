@@ -58,10 +58,7 @@ def PosDefQuad.one (n : ℕ) : PosDefQuadMap n where
 
 lemma Finset.prod_legendreSym {ι} [DecidableEq ι] {s : Finset ι} (f : ι → ℤ)
     {p : ℕ} [Fact p.Prime] : ∏ i ∈ s, legendreSym p (f i) = legendreSym p (∏ i ∈ s, f i) := by
-  induction s using Finset.induction_on with
-  | empty => simp
-  | insert a s ha ih =>
-    simp [Finset.prod_insert ha, ih, legendreSym.mul]
+  induction s using Finset.induction_on with simp [legendreSym.mul, *]
 
 lemma Finsupp.prod_legendreSym {ι M} [DecidableEq ι] [Zero M] (f : ι →₀ M) (g : ι → M → ℤ)
     (p : ℕ) [Fact p.Prime] : legendreSym p (Finsupp.prod f g) =
@@ -90,8 +87,8 @@ lemma Nat.quadResidue_to_sum_threeSq (n : ℕ) (hn1 : 2 ≤ n) (hn2 : ∃ d' : �
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
   obtain ⟨d', hdpos, ha⟩ := hn2
   obtain ⟨a12', ha⟩ := ZMod.exists.1 ha
-  haveI := mul_comm n _ ▸ mul_one 2 ▸ mul_le_mul hn1 hdpos (by grind) (by grind)
-  haveI : NeZero (d' * n - 1) := ⟨ne_of_gt <| lt_of_lt_of_le (by decide : 0 < 1) (by omega)⟩
+  have := mul_comm n _ ▸ mul_one 2 ▸ mul_le_mul hn1 hdpos (by grind) (by grind)
+  have : NeZero (d' * n - 1) := ⟨ne_of_gt <| lt_of_lt_of_le (by decide : 0 < 1) (by omega)⟩
   rw [← Int.cast_natCast, ← Int.cast_neg, ZMod.intCast_eq_iff] at ha
   obtain ⟨a11', ha11⟩ := ha
   rw [neg_eq_iff_add_eq_zero, ← add_assoc, add_comm (d' : ℤ), ← eq_neg_iff_add_eq_zero,
@@ -118,15 +115,15 @@ lemma Nat.dvd_odd_mod_four (n d : ℕ) (hd : Odd d) (hn : n ∣ d) : n % 4 = 1 �
   exact (by interval_cases (n % 4) <;> simp_all : n % 4 = 0 ∨ n % 4 = 2).casesOn
     (fun h2 ↦ by grind) (fun h2 ↦ by grind)
 
-open scoped Classical in
-@[to_additive]
-lemma Finset.prod_filter_eq_of_iff {ι M : Type*} [CommMonoid M] {s : Finset ι}
-    {p q : ι → Prop} (h : ∀ x ∈ s, p x ↔ q x) (f : ι → M) :
-    ∏ i ∈ s with p i, f i = ∏ i ∈ s with q i, f i :=
-  Finset.prod_congr (by ext; simp_all) fun _ _ ↦ rfl
+-- open scoped Classical in
+-- @[to_additive]
+-- lemma Finset.prod_filter_eq_of_iff {ι M : Type*} [CommMonoid M] {s : Finset ι}
+--     {p q : ι → Prop} (h : ∀ x ∈ s, p x ↔ q x) (f : ι → M) :
+--     ∏ i ∈ s with p i, f i = ∏ i ∈ s with q i, f i := by
+--   rw [Finset.filter_congr h]
 
 lemma Nat.sub_one_coprime_self {n : ℕ} (hn : 0 < n) : (n - 1).Coprime n := by
-  sorry
+  cases n with simp_all
 
 lemma Nat.mod_four_eq_two_to_sum_threeSq (n : ℕ) (hn : n % 4 = 2) :
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
@@ -161,37 +158,29 @@ lemma Nat.mod_four_eq_two_to_sum_threeSq (n : ℕ) (hn : n % 4 = 2) :
     have : d' = 0 := Nat.eq_zero_of_dvd_of_lt h <| lt_of_lt_of_le (by grind)
       (by gcongr; omega : d' * 2 - 1 ≤ d' * n - 1)
     omega)]
-  -- have hp5 : ∀ q ∈ d'.primeFactors, p % q = q - 1 := by
-  --   simp [hj1]
-  --   rintro q hq1 ⟨k, hk⟩ hd''
-  --   have : k ≠ 0 := fun hkk ↦ hd'' (by simpa [hkk] using hk)
-  --   simp +singlePass [hk, show n = (n - 1) + 1 by omega, mul_add]
-  --   rw [mul_one, show k = k - 1 + 1 by omega, mul_assoc, mul_add, mul_one, ← add_assoc,
-  --     ← mul_add, Nat.add_sub_assoc hq1.one_le, Nat.mul_add_mod_self_left q]
-  --   exact self_sub_mod q 1
   rw [← neg_one_mul, legendreSym.mul, legendreSym.at_neg_one (ne_of_gt (by omega)),
     ZMod.χ₄_nat_one_mod_four (by rw [← hj1, hp4]), one_mul]
   nth_rw 2 [← d'.factorization_prod_pow_eq_self (by omega)]
   rw [Nat.cast_finsuppProd, Finsupp.prod_legendreSym, Finsupp.prod]
   simp [legendreSym.pow]
-  rw [show _ = ∏ a : d'.primeFactors, _ from Finset.prod_subtype _ (by simp) _]
-  haveI : ∀ q : d'.primeFactors, Fact q.1.Prime := by simp_all
-  have hq1 : ∀ q : d'.primeFactors, q.1 ≠ 2 := fun q hq ↦ by
-    have : 2 ∣ d' := hq ▸ (mem_primeFactors_of_ne_zero (by omega)|>.1 q.2).2; omega
-  conv =>
-    enter [1, 2, x, 1]
-    rw [legendreSym.quadratic_reciprocity' (hq1 x) (by omega),
+  have hq1 (q) (hq : q ∈ d'.primeFactors) : q ≠ 2 := by
+    rintro rfl
+    have := mem_primeFactors_of_ne_zero (by omega) |>.1 hq
+    omega
+  have h (x) (hx : x ∈ d'.primeFactors) : legendreSym (d' * n - 1) x = ZMod.χ₄ x := by
+    have : Fact (Prime x) := by simp_all
+    rw [legendreSym.quadratic_reciprocity' (hq1 _ hx) (by omega),
       neg_one_pow_eq_one_iff_even (by omega)|>.2 (Even.mul_left (hj1 ▸ ⟨p / 4, by omega⟩) _),
-      Nat.cast_sub (by omega), legendreSym.sub_left_dvd_self x.1
+      Nat.cast_sub (by omega), legendreSym.sub_left_dvd_self x
       (Nat.cast_mul (α := ℤ) .. ▸ Int.dvd_mul_of_dvd_left (by
-      exact_mod_cast (mem_primeFactors_of_ne_zero (by omega)|>.1 x.2).2)),
-      cast_one, one_mul, legendreSym.at_neg_one (p := x.1) (hq1 x)]
-  rw [← Finset.prod_subtype d'.primeFactors (by simp) fun q ↦ ZMod.χ₄ (q : ZMod 4) ^ _]
+      exact_mod_cast (mem_primeFactors_of_ne_zero (by omega)|>.1 hx).2)),
+      cast_one, one_mul, legendreSym.at_neg_one (p := x) (hq1 x hx)]
+  simp +contextual only [h]
   simp_rw [← map_pow, ← Nat.cast_pow, ← map_prod, ← Nat.cast_prod,
     d'.prod_primeFactors_prod_factorization]
   have : d' = (d'.factorization.prod fun p x ↦ p ^ d'.factorization p) := by
     nth_rw 1 [← d'.factorization_prod_pow_eq_self (by omega)]
-    simp [Finsupp.prod]
+    rfl
   rw [← this, ZMod.χ₄_nat_one_mod_four (by omega)]
 
 lemma Nat.sum_threeSq_of_mod_eight_eq_one {n : ℕ} (hn : n % 8 = 1) :

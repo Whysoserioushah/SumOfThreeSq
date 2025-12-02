@@ -7,23 +7,6 @@ open Verso Genre Blog Site Syntax
 open Output Html Template Theme in
 def theme : Theme := { Theme.default with
   primaryTemplate := do
-    let postList :=
-      match (← param? "posts") with
-      | none => Html.empty
-      | some html => {{ <h2> "Posts" </h2> }} ++ html
-    let catList :=
-      match (← param? (α := Post.Categories) "categories") with
-      | none => Html.empty
-      | some ⟨cats⟩ => {{
-          <div class="category-directory">
-            <h2> "Categories" </h2>
-            <ul>
-            {{ cats.map fun (target, cat) =>
-              {{<li><a href={{target}}>{{Post.Category.name cat}}</a></li>}}
-            }}
-            </ul>
-          </div>
-        }}
     return {{
       <html>
         <head>
@@ -39,16 +22,13 @@ def theme : Theme := { Theme.default with
           <header>
             <div class="inner-wrap">
             {{ if (← currentPath).isEmpty then .empty else
-              {{ <a class="logo" href="/"><h1>"Axiomatizing Alex"</h1></a> }} }}
-            {{ ← topNav }}
+              {{ <a class="logo" href="/"><h1>"Sum of Three Squares"</h1></a> }} }}
+            -- {{ ← topNav }}
             </div>
           </header>
           <main>
             <div class="wrap">
-              {{← breadcrumbs 2}}
               {{← param "content" }}
-              {{ catList }}
-              {{ postList }}
             </div>
           </main>
         </body>
@@ -64,6 +44,7 @@ def theme : Theme := { Theme.default with
 
 def blog : Site := site Blog.About /
   static "static" ← "static_files"
+  "prereq" Blog.Prerequists
   -- "about" Blog.About
   -- "blog" Blog.Posts with
   --   Blog.Posts.Comparison
@@ -73,3 +54,7 @@ def blog : Site := site Blog.About /
 
 
 def main := blogMain theme blog (options := ["--output", "../docs"])
+
+run_meta do
+  let opt ← Lean.getOptions
+  if Lean.Elab.inServer.get opt then _ ← main
