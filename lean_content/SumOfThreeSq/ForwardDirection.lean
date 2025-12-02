@@ -1,6 +1,7 @@
-import SumOfThreeSq.Mathlib.LinearAlgebra.QuadraticForm.Tenary
+import Mathlib.NumberTheory.LSeries.PrimesInAP
+import Mathlib.NumberTheory.LegendreSymbol.QuadraticReciprocity
 import SumOfThreeSq.Mathlib.LinearAlgebra.QuadraticForm.Binary
-import Mathlib
+import SumOfThreeSq.Mathlib.LinearAlgebra.QuadraticForm.Tenary
 
 private def A (n : ℕ) (d' : ℕ) (a12' : ℤ) (a11' : ℤ) : Matrix (Fin 3) (Fin 3) ℤ :=
   ![![(-a11' + (a12' : ZMod (d' * n - 1)).cast * (a12' : ZMod (d' * n - 1)).cast / ↑(d' * n - 1)),
@@ -196,5 +197,3 @@ lemma Nat.mod_four_eq_two_to_sum_threeSq (n : ℕ) (hn : n % 4 = 2) :
 lemma Nat.mod_four_odd_not_five_to_sum_threeSq (n : ℕ) (hn : n % 8 = 1 ∨ n % 8 = 3 ∨ n % 8 = 5) :
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
   sorry
-
--- final theorem goes here
