@@ -50,7 +50,9 @@ theorem smul_add' : U • (v₁ + v₂) = U • v₁ + U • v₂ := by simp [sm
 instance : SMulCommClass SL(n,R) R (n → R) where
   smul_comm := by simp [smul_def', mulVec_smul]
 
+-- ANCHOR: Matrix.SpecialLinearGroup.rel
 def rel : Setoid (Matrix n n R) := MulAction.orbitRel (SpecialLinearGroup n R) (Matrix n n R)
+-- ANCHOR_END: Matrix.SpecialLinearGroup.rel
 
 theorem rel_def' : rel A B ↔ ∃ U : SpecialLinearGroup n R, U • B = A := Iff.rfl
 

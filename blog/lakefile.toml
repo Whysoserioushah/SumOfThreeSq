@@ -3,9 +3,14 @@ version = "0.1.0"
 defaultTargets = ["Blog", "generate-blog"]
 
 [[require]]
+name = "subverso"
+git = "https://github.com/leanprover/subverso"
+rev = "1d663ae67d8088111bb37c3c526fe2d43e4df01c"
+
+[[require]]
 name = "verso"
-git = "https://github.com/leanprover/verso.git"
-rev = "v4.24.0"
+git = "https://github.com/leanprover/verso"
+rev = "78bd0ea9696c46e98cc02abc304e645ce465df3d"
 
 # The content of the blog is in this Lean library
 [[lean_lib]]

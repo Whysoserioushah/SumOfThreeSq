@@ -17,3 +17,6 @@ web.*
 print.*
 .claude/*
 */blueprint/web/*
+docs/-verso-js/*
+docs/-verso-css/*
+docs/*/*.css
