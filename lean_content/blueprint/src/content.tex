@@ -675,42 +675,8 @@ form of discriminant~$1$, together with two important theorems of elementary
 number theory: Gauss's law of quadratic reciprocity and Dirichlet's theorem on
 primes in arithmetic progressions.
 
-The statement that $a$ is a \emph{quadratic residue modulo $m$} means that
-there exist integers $x$ and $y$ such that
-\[
-x^{2}-a = ym .
-\]
-If $p$ is prime and $(a,p)=1$, then the \emph{Legendre symbol} $\bigl(\tfrac{a}{p}\bigr)$
-is defined by
-\[
-\left(\frac{a}{p}\right)=
-\begin{cases}
- 1, &\text{if $a$ is a quadratic residue modulo $p$,}\\[2mm]
--1, &\text{if $a$ is not a quadratic residue modulo $p$.}
-\end{cases}
-\]
-
-By quadratic reciprocity, if $p$ and $q$ are distinct odd primes, then
-\[
-\left(\frac{p}{q}\right)\left(\frac{q}{p}\right)
- = (-1)^{\frac{p-1}{2}\frac{q-1}{2}}
- =
- \begin{cases}
-  1, & \text{if $p\equiv 1 \pmod 4$ or $q\equiv 1 \pmod 4$,}\\
- -1, & \text{if $p\equiv q\equiv 3 \pmod 4$.}
- \end{cases}
-\]
-Also,
-\[
-\left(\frac{-1}{p}\right)=1 \quad\Longleftrightarrow\quad p\equiv 1 \pmod 4,
-\]
-and
-\[
-\left(\frac{2}{p}\right)=1 \quad\Longleftrightarrow\quad p\equiv 1 \text{ or }7
-\pmod 8.
-\]
-
-\begin{lemma}\label{lem:three-squares-dprime}
+\begin{lemma}
+\label{lem:three-squares-dprime}
 Let $n>2$.  If there exists a positive integer $d'$ such that $-d'$ is a
 quadratic residue modulo $d'n-1$, then $n$ can be represented as the sum
 of three squares.
