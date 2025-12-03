@@ -30,3 +30,7 @@ theorem Int.not_sum_of_three_sq (x : ℤ) (hx : ∃ a k : ℕ, x = 4 ^ a * (8 * 
     conv_rhs at h => equals 4 * (x1 ^ 2 + x2 ^ 2 + x3 ^ 2) => grind
     rw [mul_right_inj' (by decide)] at h
     tauto
+
+theorem Nat.not_sum_of_three_sq (n : ℕ) (hn : ∃ a k : ℕ, n = 4 ^ a * (8 * k + 7)) :
+    ∀ a b c : ℤ, n ≠ a ^ 2 + b ^ 2 + c ^ 2 := by
+  exact_mod_cast Int.not_sum_of_three_sq n (by exact_mod_cast hn)

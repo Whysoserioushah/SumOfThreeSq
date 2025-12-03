@@ -16,12 +16,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
-      - uses: leanprover/lean-action@v1
+      - name: Cleanup to free disk space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+
+      - name: Checkout project
+        uses: actions/checkout@v5
+
+      - name: Setup and build Lean files
+        uses: leanprover/lean-action@v1
         with:
           lake-package-directory: "lean_content"
-      - uses: jcreedcmu/docgen-action@ef6d9dc273d5b747d22cb87a569cd91924164168
+        
+      - name: Run Verso
+        working-directory: ./blog
+        run: lake exe generate-blog
+
+      - name: Docgen + blueprint + build website
+        uses: jcreedcmu/docgen-action@ef6d9dc273d5b747d22cb87a569cd91924164168
         with: 
           blueprint: true
-          api-docs: true
+          api-docs: true # TEMPORARILY turn off docs to test CI faster
           lake-package-directory: "lean_content"
