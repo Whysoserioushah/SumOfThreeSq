@@ -2,6 +2,7 @@ import Mathlib.NumberTheory.LSeries.PrimesInAP
 import Mathlib.NumberTheory.LegendreSymbol.QuadraticReciprocity
 import SumOfThreeSq.Mathlib.LinearAlgebra.QuadraticForm.Binary
 import SumOfThreeSq.Mathlib.LinearAlgebra.QuadraticForm.Tenary
+import Mathlib
 
 private def A (n : ℕ) (d' : ℕ) (a12' : ℤ) (a11' : ℤ) : Matrix (Fin 3) (Fin 3) ℤ :=
   ![![(-a11' + (a12' : ZMod (d' * n - 1)).cast * (a12' : ZMod (d' * n - 1)).cast / ↑(d' * n - 1)),
@@ -183,8 +184,40 @@ lemma Nat.mod_four_eq_two_to_sum_threeSq (n : ℕ) (hn : n % 4 = 2) :
     rfl
   rw [← this, ZMod.χ₄_nat_one_mod_four (by omega)]
 
+lemma Nat.coprime_lemma1 {n : ℕ} (hn : n % 8 = 1) :
+    (4 * n).Coprime ((n - 1) / 2) := by sorry
+
+lemma Nat.coprime_lemma2 {n : ℕ} (hn : n % 8 = 3) :
+    (4 * n).Coprime ((n - 1) / 2) := by sorry
+
+lemma Nat.coprime_lemma3 {n : ℕ} (hn : n % 8 = 5) :
+    (4 * n).Coprime ((3 * n - 1) / 2) := by sorry
+
 lemma Nat.sum_threeSq_of_mod_eight_eq_one {n : ℕ} (hn : n % 8 = 1) :
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
+  -- obtain ⟨k, hk⟩ := @Nat.dvd_sub_mod 8 n
+  -- haveI : Even (3 * n - 1) := by grind
+  have h1 : ((3 * n - 1) / 2) % 4 = 1 := by grind
+  haveI : Odd ((3 * n - 1) / 2) := odd_iff.2 <| Nat.odd_of_mod_four_eq_one h1
+  have h2 : (4 * n).Coprime ((3 * n - 1) / 2) := by
+    have h_gcd_dvd : (4 * n).gcd ((3 * n - 1) / 2) ∣ 4 := by
+      rw [Nat.Coprime.gcd_mul_right_cancel _
+        (Nat.Coprime.coprime_div_right _ (by grind))]
+      · exact gcd_dvd_left 4 ((3 * n - 1) / 2)
+      · refine Nat.coprime_sub_self_right (by grind) |>.1 <|
+          Nat.coprime_sub_self_right (by grind) |>.1 ?_
+        convert (Nat.sub_one_coprime_self (by grind : 0 < n)).symm using 1
+        grind
+    have h_gcd_odd : Odd ((4 * n).gcd ((3 * n - 1) / 2)) := Odd.of_dvd_nat this <| gcd_dvd_right _ _
+    haveI := le_of_dvd (by omega) h_gcd_dvd
+    haveI : 1 ≤ (4 * n).gcd ((3 * n - 1) / 2) := by grind
+    rw [Nat.Coprime]
+    interval_cases ((4 * n).gcd ((3 * n - 1) / 2))
+    · rfl
+    · norm_num at h_gcd_odd
+    · omega
+    · norm_num at h_gcd_odd
+  obtain ⟨p, hp1, hp2, hp3⟩ := @Nat.forall_exists_prime_gt_and_modEq (7 * n) _ _ (by omega) h2
   sorry
 
 lemma Nat.sum_threeSq_of_mod_eight_eq_three {n : ℕ} (hn : n % 8 = 3) :
