@@ -185,13 +185,37 @@ lemma Nat.mod_four_eq_two_to_sum_threeSq (n : ℕ) (hn : n % 4 = 2) :
   rw [← this, ZMod.χ₄_nat_one_mod_four (by omega)]
 
 lemma Nat.coprime_lemma1 {n : ℕ} (hn : n % 8 = 1) :
-    (4 * n).Coprime ((n - 1) / 2) := by sorry
+    (4 * n).Coprime (3 * (n - 1) / 2) := by
+  sorry
 
 lemma Nat.coprime_lemma2 {n : ℕ} (hn : n % 8 = 3) :
-    (4 * n).Coprime ((n - 1) / 2) := by sorry
+    (4 * n).Coprime ((n - 1) / 2) := by
+  have cop1 : n.Coprime (n - 1) := Nat.sub_one_coprime_self (by omega)|>.symm
+  have cop2 : n.Coprime ((n - 1)/2) := Nat.Coprime.coprime_div_right cop1 (by omega)
+  have hodd : Odd ((n - 1)/2) := by grind
+  have cop3 : Nat.Coprime 4 ((n - 1)/ 2) := by
+    have cop4 : Nat.Coprime 2 ((n - 1)/ 2) := by
+      exact coprime_two_left.mpr hodd
+    exact Nat.Coprime.pow_left 2 cop4
+  exact Coprime.mul_left cop3 cop2
+
 
 lemma Nat.coprime_lemma3 {n : ℕ} (hn : n % 8 = 5) :
-    (4 * n).Coprime ((3 * n - 1) / 2) := by sorry
+    (4 * n).Coprime ((3 * n - 1) / 2) := by
+  have A : n.Coprime (3 * n - 1) := by
+    refine Nat.coprime_sub_self_right (by grind) |>.1 <|
+      Nat.coprime_sub_self_right (by grind) |>.1 ?_
+    convert (Nat.sub_one_coprime_self (by grind : 0 < n)).symm using 1
+    grind
+  have B : Odd ((3 * n - 1)/2) := by
+    grind
+  have C : n.Coprime ((3 * n - 1) / 2) := by
+    refine Coprime.coprime_div_right A ?_
+    grind
+  have D : Nat.Coprime 4 ((3 * n - 1)/2) := by
+    have := Nat.coprime_two_left (n := (3 * n - 1)/2) |>.2 B
+    exact Nat.Coprime.pow_left 2 this
+  exact Coprime.mul_left D C
 
 lemma Nat.sum_threeSq_of_mod_eight_eq_one {n : ℕ} (hn : n % 8 = 1) :
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
