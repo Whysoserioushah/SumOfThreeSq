@@ -130,14 +130,17 @@ lemma PosDef_iff (A : M((Fin 3), ℤ)) (hA : A.IsSymm) :
   simp [funext_iff, Fin.forall_fin_succ, this, h8] at hv
 
 def _root_.Matrix.SpecialLinearGroup.mkFin3OfFin2 (V : SL(Fin 2, ℤ)) (r s : ℤ) : SL(Fin 3, ℤ) where
-  val := ![![1, r, s], ![0, V 0 0, V 0 1], ![0, V 1 0, V 1 1]]
+  val := !![1, r, s; 0, V 0 0, V 0 1; 0, V 1 0, V 1 1].transpose
   property := by
+    rw [det_transpose]
     simpa [Matrix.det_fin_three] using Matrix.det_fin_two V.1 ▸ V.2
 
 open Matrix.SpecialLinearGroup in
 lemma lemma4a (B : PosDefQuadMap 3) (V : SL(Fin 2, ℤ)) (r s : ℤ) :
     B.1 0 0 = ((mkFin3OfFin2 V r s) • B.1) 0 0 := by
-  sorry
+  rw [ Matrix.SpecialLinearGroup.smul_def]
+  simp [Matrix.mul_apply, Matrix.SpecialLinearGroup.mkFin3OfFin2,
+    Fin.sum_univ_succ]
 
 open Matrix.SpecialLinearGroup
 
