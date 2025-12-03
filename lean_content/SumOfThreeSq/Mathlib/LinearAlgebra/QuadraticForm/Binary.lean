@@ -213,12 +213,6 @@ lemma binaryQuadMap_bound1 (d : ℤ) (Q' : PosDefQuadMap 2) (hQ' : Q'.matrix.det
           · exact Real.sqrt_nonneg 3
         · exact Real.sqrt_nonneg d
 
-  classical
-  have ha11 := Nat.find_spec <| exists_representedNat Q'.3
-  set a11 := Nat.find <| exists_representedNat Q'.3 with a11_eq
-
-  sorry
-
 theorem binaryQuadMap_of_det_eq_one (Q : PosDefQuadMap 2) (hQ : Q.matrix.det = 1) :
     rel Q.matrix 1 := by
   obtain ⟨Q', hQ'1, hQ'2, hQ'3⟩ := binaryQuadMap_bound1 1 Q hQ
