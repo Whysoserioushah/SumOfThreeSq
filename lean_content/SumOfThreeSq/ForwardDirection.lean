@@ -236,6 +236,171 @@ lemma Nat.coprime_lemma2 {n : ℕ} (hn : n % 8 = 3) :
 lemma Nat.coprime_lemma3 {n : ℕ} (hn : n % 8 = 5) :
     (4 * n).Coprime ((3 * n - 1) / 2) := by sorry
 
+lemma Nat.odd_eq_mod_8_mul (n : ℕ) (hn : Odd n) :
+    n = (∏ q ∈ n.primeFactors with q % 8 = 1, q ^ n.factorization q) *
+      (∏ q ∈ n.primeFactors with q % 8 = 3, q ^ n.factorization q) *
+      (∏ q ∈ n.primeFactors with q % 8 = 5, q ^ n.factorization q) *
+      (∏ q ∈ n.primeFactors with q % 8 = 7, q ^ n.factorization q) := by
+  if hn0 : n = 0 then
+    simp [hn0] at hn
+  else
+    nth_rw 1 [← n.factorization_prod_pow_eq_self hn0]
+    rw [Finsupp.prod, support_factorization]
+    -- Partition primeFactors into 4 groups based on mod 8
+    have h_partition : ∀ q ∈ n.primeFactors, q % 8 = 1 ∨ q % 8 = 3 ∨ q % 8 = 5 ∨ q % 8 = 7 := by
+      intro q hq
+      have hq_prime := Nat.prime_of_mem_primeFactors hq
+      have hq_dvd : q ∣ n := Nat.dvd_of_mem_primeFactors hq
+      have hq_odd : Odd q := Odd.of_dvd_nat hn hq_dvd
+      have : q % 8 < 8 := Nat.mod_lt q (by omega)
+      rw [Nat.odd_iff] at hq_odd
+      have hqmod : q % 2 = (q % 8) % 2 := by omega
+      rw [hqmod] at hq_odd
+      interval_cases (q % 8)
+      all_goals (first | (left; rfl) | (right; left; rfl) | (right; right; left; rfl) |
+        (right; right; right; rfl) | (norm_num at hq_odd))
+    -- Partition the set based on mod 8 values
+    have h_union : n.primeFactors =
+      (n.primeFactors.filter (· % 8 = 1)) ∪
+      (n.primeFactors.filter (· % 8 = 3)) ∪
+      (n.primeFactors.filter (· % 8 = 5)) ∪
+      (n.primeFactors.filter (· % 8 = 7)) := by
+        ext q
+        simp only [Finset.mem_union, Finset.mem_filter]
+        constructor
+        · intro hq
+          rcases h_partition q hq with h1 | h3 | h5 | h7
+          · left; left; left; exact ⟨hq, h1⟩
+          · left; left; right; exact ⟨hq, h3⟩
+          · left; right; exact ⟨hq, h5⟩
+          · right; exact ⟨hq, h7⟩
+        · intro h
+          rcases h with ((⟨hq, _⟩ | ⟨hq, _⟩) | ⟨hq, _⟩) | ⟨hq, _⟩ <;> exact hq
+    rw [h_union]
+    -- Reassociate the union on LHS to match structure
+    have h_assoc : (n.primeFactors.filter (· % 8 = 1)) ∪
+                    (n.primeFactors.filter (· % 8 = 3)) ∪
+                    (n.primeFactors.filter (· % 8 = 5)) ∪
+                    (n.primeFactors.filter (· % 8 = 7)) =
+                   ((n.primeFactors.filter (· % 8 = 1)) ∪
+                    (n.primeFactors.filter (· % 8 = 3))) ∪
+                   ((n.primeFactors.filter (· % 8 = 5)) ∪
+                    (n.primeFactors.filter (· % 8 = 7))) := by
+      ext; simp [Finset.mem_union]
+    rw [h_assoc]
+    -- Now split using prod_union
+    have disj12 : Disjoint (n.primeFactors.filter (· % 8 = 1))
+        (n.primeFactors.filter (· % 8 = 3)) := by
+      simp [Finset.disjoint_left, Finset.mem_filter]; omega
+    have disj34 : Disjoint (n.primeFactors.filter (· % 8 = 5))
+        (n.primeFactors.filter (· % 8 = 7)) := by
+      simp [Finset.disjoint_left, Finset.mem_filter]; omega
+    have disj1234 : Disjoint ((n.primeFactors.filter (· % 8 = 1)) ∪
+        (n.primeFactors.filter (· % 8 = 3)))
+        ((n.primeFactors.filter (· % 8 = 5)) ∪
+        (n.primeFactors.filter (· % 8 = 7))) := by
+      simp [Finset.disjoint_left, Finset.mem_filter, Finset.mem_union]; omega
+    rw [Finset.prod_union disj1234, Finset.prod_union disj12, Finset.prod_union disj34]
+    -- Now we just need to rewrite the RHS using associativity
+    rw [mul_assoc, mul_assoc]
+    -- Show that filtering the union by each specific mod 8 value gives back the original filter
+    have h1_1 : (((n.primeFactors.filter (· % 8 = 1)) ∪
+        (n.primeFactors.filter (· % 8 = 3))) ∪
+       ((n.primeFactors.filter (· % 8 = 5)) ∪
+        (n.primeFactors.filter (· % 8 = 7)))).filter (· % 8 = 1) =
+      n.primeFactors.filter (· % 8 = 1) := by
+        ext q; simp only [Finset.mem_filter, Finset.mem_union]; tauto
+    have h1_3 : (((n.primeFactors.filter (· % 8 = 1)) ∪
+        (n.primeFactors.filter (· % 8 = 3))) ∪
+       ((n.primeFactors.filter (· % 8 = 5)) ∪
+        (n.primeFactors.filter (· % 8 = 7)))).filter (· % 8 = 3) =
+      n.primeFactors.filter (· % 8 = 3) := by
+        ext q; simp only [Finset.mem_filter, Finset.mem_union]; tauto
+    have h1_5 : (((n.primeFactors.filter (· % 8 = 1)) ∪
+        (n.primeFactors.filter (· % 8 = 3))) ∪
+       ((n.primeFactors.filter (· % 8 = 5)) ∪
+        (n.primeFactors.filter (· % 8 = 7)))).filter (· % 8 = 5) =
+      n.primeFactors.filter (· % 8 = 5) := by
+        ext q; simp only [Finset.mem_filter, Finset.mem_union]; tauto
+    have h1_7 : (((n.primeFactors.filter (· % 8 = 1)) ∪
+        (n.primeFactors.filter (· % 8 = 3))) ∪
+       ((n.primeFactors.filter (· % 8 = 5)) ∪
+        (n.primeFactors.filter (· % 8 = 7)))).filter (· % 8 = 7) =
+      n.primeFactors.filter (· % 8 = 7) := by
+        ext q; simp only [Finset.mem_filter, Finset.mem_union]; tauto
+    simp only [h1_1, h1_3, h1_5, h1_7]
+    ring
+
+-- lemma Int.mod_mul_mod (a b c : ℤ) : ((a % c) * (b % c)) % c = (a * b) % c := by
+--   exact Eq.symm (mul_emod a b c)
+
+#check Nat.pow_mod
+
+lemma Int.pow_emod (a : ℤ) (b : ℕ) (c : ℤ) (hc : c ≠ 0) :
+    ((a % c) ^ b) % c = (a ^ b) % c := by
+  sorry
+  -- change ((a.natAbs % c.natAbs) ^ _) % c.natAbs = _ % c.natAbs
+  -- induction b with
+  -- | zero => simp
+  -- | succ b ih =>
+  --   rw [pow_succ, pow_succ, mul_emod, ih]
+
+lemma Nat.mod_eight_eq (n : ℕ) (hn : Odd n) : n % 8  =
+    ((∏ q ∈ n.primeFactors with q % 8 = 3 ∨ q % 8 = 5, 3 ^ (n.factorization q)) *
+    (∏ q ∈ n.primeFactors with q % 8 = 5 ∨ q % 8 = 7, 7 ^ (n.factorization q)) % 8) := by
+  conv_lhs => rw [Nat.odd_eq_mod_8_mul n hn]
+  rw [mul_mod]; nth_rw 2 [mul_mod]; nth_rw 3 [mul_mod]
+  nth_rw 4 [mul_mod]
+  rw [Finset.prod_nat_mod]; nth_rw 2 [Finset.prod_nat_mod]; nth_rw 3 [Finset.prod_nat_mod]
+  nth_rw 4 [Finset.prod_nat_mod]; nth_rw 5 [Finset.prod_nat_mod]; nth_rw 6 [Finset.prod_nat_mod]
+  conv_lhs => enter[1, 1, 1, 1, 1, 1, 1, 2, i]; rw [Nat.pow_mod]
+  conv_lhs => enter[1, 1, 1, 1, 1, 2, 1, 2, i]; rw [Nat.pow_mod]
+  conv_lhs => enter[1, 1, 1, 2, 1, 2, i]; rw [Nat.pow_mod]
+  conv_lhs => enter[1, 2, 1, 2, i]; rw [Nat.pow_mod]
+  have : ∏ q ∈ n.primeFactors with q % 8 = 1, ((q % 8) ^ (n.factorization q) % 8) = 1 := by
+    refine Finset.prod_eq_one fun q hq ↦ ?_
+    simp only [Finset.mem_filter, mem_primeFactors, ne_eq] at hq
+    simp [hq.2]
+  simp only [this, one_mod, one_mul, dvd_refl, mod_mod_of_dvd, mul_mod_mod, mod_mul_mod]
+  rw [Finset.filter_or, Finset.prod_union (Finset.disjoint_left.2 fun n hn ↦ by simp_all),
+    Finset.filter_or, Finset.prod_union (Finset.disjoint_left.2 fun n hn ↦ by simp_all)]
+  -- have : ∏ q ∈ n.primeFactors with q % 8 = 7, ((q % 8) ^ (n.factorization q) % 8) =
+  --   ∏ q ∈ n.primeFactors with q % 8 = 7, (7 ^ (n.factorization q) % 8) := by sorry
+  -- rw [this]
+    -- refine Finset.prod_eq_one fun q hq ↦ ?_
+    -- simp only [Finset.mem_filter, mem_primeFactors, ne_eq] at hq
+    -- simp [hq.2]
+
+
+  -- simp only [cast_mul, cast_prod, cast_pow, Int.reduceNeg]
+  -- rw [Int.mul_emod]
+  -- nth_rw 2 [Int.mul_emod]
+  -- nth_rw 3 [Int.mul_emod]
+  -- rw [Finset.prod_int_mod]
+  -- nth_rw 2 [Finset.prod_int_mod]
+  -- nth_rw 3 [Finset.prod_int_mod]
+
+
+  sorry
+
+-- instance (n : ℕ) : Fintype { x // x ∈ n.primeFactors } := n.primeFactors.fintypeCoeSort
+  -- Fintype.ofFinset n.primeFactors (by sorry)
+
+instance {n : ℕ} (x : n.primeFactors) : Fact x.1.Prime :=
+  ⟨Nat.prime_of_mem_primeFactors x.2⟩
+
+-- lemma legendreSym.pow_two {p : ℕ} [Fact p.Prime] (a : ℤ) :
+--     (legendreSym p a) ^ 2 = 1 := by
+--   rw [legendreSym.sq_one]
+
+-- #check legendreSym.neg
+lemma legendreSym.neg_of_one_mod_four (p : ℕ) (hp : p ≠ 2) (hp' : p % 4 = 1) [Fact p.Prime]
+    (n : ℤ) : legendreSym p (-n) = legendreSym p n := by
+  rw [← neg_one_mul, legendreSym.mul, legendreSym.at_neg_one hp,
+    ZMod.χ₄_nat_one_mod_four hp', one_mul]
+
+#check legendreSym.at_two
+
 lemma Nat.sum_threeSq_of_mod_eight_eq_one {n : ℕ} (hn : n % 8 = 1) :
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 :=
   if hnn : n = 1 then ⟨1, 0, 0, by norm_num [hnn]⟩ else by
@@ -255,12 +420,55 @@ lemma Nat.sum_threeSq_of_mod_eight_eq_one {n : ℕ} (hn : n % 8 = 1) :
   have hd1 : 2 * p = d' * n - 1 := by
     simp only [hj1, mul_add, Nat.mul_div_cancel_left' (by grind : 2 ∣ (3 * n - 1)), d']
     grind
+  have hd2 : 3 ≤ d' := by omega
   refine Nat.quadResidue_to_sum_threeSq n (by grind) ⟨d', by grind, hd1 ▸ ?_⟩
   have := ZMod.isSquare_coprime_split (p := p) hp4 (-d' : ℤ) (by grind) ?_
   · rwa [Int.cast_neg, Int.cast_natCast] at this
+  -- simp only [Int.cast_neg, Int.cast_natCast]
+  haveI : Fact (Prime p) := ⟨hp2⟩
+  have hq1 (q) (hq : q ∈ d'.primeFactors) : (2 * p) % (q : ℤ) = -1 := by sorry
+  have hq2 (q) (hq : q ∈ d'.primeFactors) : p.Coprime q := by sorry
+  have hp5 : p % 4 = 1 := by sorry
+  rw [← legendreSym.eq_one_iff p
+  -- (by
+  --   simp only [Int.cast_neg, Int.cast_natCast, ne_eq, neg_eq_zero]
+  --   intro hd2
+  --   rw [ZMod.natCast_eq_zero_iff] at hd2
+  --   have : d' < 2 * p := hd1 ▸ lt_of_lt_of_le (by omega : d' < d' * 2 - 1) (by gcongr; omega)
+  --   have : d' = 0 := by
+  --     have : d' = 0 ∨ d' = p := by
+  --       obtain ⟨k, hk⟩ := hd2
+  --       have : k < 2 := by rw [hk, mul_comm p] at this; exact Nat.lt_of_mul_lt_mul_right this
+  --       interval_cases k <;> simp_all
+  --     exact this.resolve_right (fun hdp ↦ by grind)
+  --   omega)
+  sorry]
+  rw [legendreSym.neg_of_one_mod_four p (by grind) hp5,
+    ← d'.factorization_prod_pow_eq_self (by omega), Nat.cast_finsuppProd, Finsupp.prod_legendreSym]
+  simp only [Finsupp.prod, support_factorization, cast_pow, legendreSym.pow]
+  rw [@Finset.prod_subtype _ _ _ (fun x ↦ x ∈ d'.primeFactors)
+    d'.primeFactors.fintypeCoeSort d'.primeFactors (by simp)
+    (fun i ↦ (legendreSym p i) ^ (d'.factorization i))]
+  conv_lhs =>
+    enter [2, a, 1];
+    rw [← legendreSym.quadratic_reciprocity_one_mod_four hp5 (by grind),
+      ← mul_one (legendreSym _ _), ← legendreSym.sq_one a.1 (a := 2) (by grind), pow_two,
+      ← mul_assoc, ← legendreSym.mul, mul_comm, mul_comm _ 2, legendreSym.mod a.1 (2 * (p : ℤ)),
+      hq1 a.1 a.2, legendreSym.at_neg_one (by grind), legendreSym.at_two (by grind), mul_comm,
+      ← Int.cast_natCast]
+    tactic =>
+    nth_rw 2 [← Int.cast_natCast]
+  simp_rw [← ZMod.χ₈'_int_eq_χ₄_mul_χ₈ ]
+  -- conv_lhs =>
+  --   enter [2, a]
+  -- have h (x) (hx : x ∈ d'.primeFactors) : legendreSym p x =
+  --   @legendreSym x ⟨Nat.prime_of_mem_primeFactors hx⟩ p :=
+  --   @legendreSym.quadratic_reciprocity_one_mod_four _ _ _
+  --   ⟨Nat.prime_of_mem_primeFactors hx⟩ hp5 (by grind)|>.symm
+  -- simp_rw [h]
 
   sorry
-
+#check ZMod.χ₈'_int_eq_χ₄_mul_χ₈
 lemma Nat.sum_threeSq_of_mod_eight_eq_three {n : ℕ} (hn : n % 8 = 3) :
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
   sorry
