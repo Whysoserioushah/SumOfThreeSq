@@ -152,12 +152,33 @@ lemma lemma4b (B : PosDefQuadMap 3) (V : SL(Fin 2, ℤ)) (r s : ℤ) (v : Fin 3 
 
 def _root_.Matrix.SpcecialLinearGroup.mkFin3FromInt (u11 u21 u31 : ℤ)
     (hu : Finset.gcd {u11, u21, u31} id = 1) : SpecialLinearGroup (Fin 3) ℤ where
-  val := ![![u11, u11.gcdB u21, (u11 / (u11.gcd u21)) * (Int.gcdB (u11.gcd u21) u31)],
-      ![u21, u11.gcdA u21, (u21 / (u11.gcd u21)) * (Int.gcdB (u11.gcd u21) u31)],
-      ![u31, 0, Int.gcdA (u11.gcd u21) u31]]
+  val := !![u11, - u11.gcdB u21, - (u11 / (u11.gcd u21)) * (Int.gcdB (u11.gcd u21) u31);
+      u21, u11.gcdA u21, (if u11.gcd u21 = 0 then -u31.sign else 0) -
+        (u21 / (u11.gcd u21)) * (Int.gcdB (u11.gcd u21) u31);
+      u31, 0, Int.gcdA (u11.gcd u21) u31]
   property := by
-    have : Int.gcd (u11.gcdB u21) u31 = 1 := by sorry
-    sorry
+    have : Int.gcd (u11.gcd u21) u31 = (1 : ℤ) := by
+      rw [← hu]; simp [Int.coe_gcd, ← gcd_assoc]
+      apply Associated.gcd_eq_right
+      exact associated_normalize u31
+    rw [Int.gcd_eq_gcd_ab (u11.gcd u21) u31] at this
+    have hh := Int.gcd_eq_gcd_ab u11 u21
+    generalize ha : u11.gcd u21 = a at *
+    by_cases haa : a = 0
+    · subst haa
+      simp at ha
+      obtain ⟨rfl, rfl⟩ := ha
+      simp [Matrix.det_fin_three, Int.gcdB]
+      simpa [Int.abs_eq_normalize] using hu
+    obtain ⟨x, rfl⟩ : ↑a ∣ u11 := by rw [← ha]; exact Int.gcd_dvd_left u11 u21
+    obtain ⟨y, rfl⟩ : ↑a ∣ u21 := by rw [← ha]; exact Int.gcd_dvd_right (↑a * x) u21
+    replace hh : 1 = x * (↑a * x).gcdA (↑a * y) +
+        y * (↑a * x).gcdB (↑a * y) := by
+      apply mul_left_injective₀ (b := ↑a) (by simpa)
+      grind
+    simp [haa]
+    simp [Matrix.det_fin_three]
+    grind
 
 lemma lemma6 (d : ℤ) (x : Quotient (EquivalentQuad 3)) (hx : ∀ Q : PosDefQuadMap 3,
     Quotient.mk'' Q = x → Q.1.det = d) : ∃ Q : PosDefQuadMap 3, Quotient.mk'' Q = x ∧
