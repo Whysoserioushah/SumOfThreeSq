@@ -184,9 +184,51 @@ lemma Nat.mod_four_eq_two_to_sum_threeSq (n : ℕ) (hn : n % 4 = 2) :
     rfl
   rw [← this, ZMod.χ₄_nat_one_mod_four (by omega)]
 
+lemma Int.coprime_mul_dvd_of_dvd_of_dvd {a b c : ℤ} (h1 : a.gcd b = 1) (h2 : a ∣ c) (h3 : b ∣ c) :
+    (a * b) ∣ c := Int.natAbs_dvd_natAbs.1 <| Int.natAbs_mul _ _ ▸
+  Nat.Coprime.mul_dvd_of_dvd_of_dvd h1 (Int.natAbs_dvd_natAbs.2 h2) (Int.natAbs_dvd_natAbs.2 h3)
+
+lemma ZMod.isSquare_coprime_split {p : ℕ} (hp : Odd p) (n : ℤ) (hn : Odd n)
+    (ha1 : IsSquare (n : ZMod p)) : IsSquare (n : ZMod (2 * p)) := by
+  obtain ⟨a, ha⟩ := ZMod.exists.1 ha1
+  if ha' : Odd a then
+  use a
+  rw [← sub_eq_zero, ← Int.cast_mul, ← Int.cast_sub,
+    ZMod.intCast_zmod_eq_zero_iff_dvd, Nat.cast_mul]
+  refine Int.coprime_mul_dvd_of_dvd_of_dvd ?_ ?_ ?_
+  · exact_mod_cast Nat.coprime_two_left.mpr hp
+  · simpa using even_iff_two_dvd.1 <| Odd.add_odd hn (by grind)
+  · simpa [← ZMod.intCast_zmod_eq_zero_iff_dvd, sub_eq_zero] using ha
+  else
+  use a + p
+  have ha' : Odd (a + p) := by grind
+  rw [← sub_eq_zero, ← Int.cast_natCast, ← Int.cast_add, ← Int.cast_mul, ← Int.cast_sub,
+    ZMod.intCast_zmod_eq_zero_iff_dvd, Nat.cast_mul]
+  refine Int.coprime_mul_dvd_of_dvd_of_dvd ?_ ?_ ?_
+  · exact_mod_cast Nat.coprime_two_left.mpr hp
+  · simpa using even_iff_two_dvd.1 <| Odd.add_odd hn (by grind)
+  · simpa [← ZMod.intCast_zmod_eq_zero_iff_dvd, sub_eq_zero] using ha
+
 lemma Nat.coprime_lemma1 {n : ℕ} (hn : n % 8 = 1) :
-    (4 * n).Coprime (3 * (n - 1) / 2) := by
-  sorry
+    (4 * n).Coprime ((3 * n - 1) / 2) := by
+  have h_gcd_dvd : (4 * n).gcd ((3 * n - 1) / 2) ∣ 4 := by
+    rw [Nat.Coprime.gcd_mul_right_cancel _
+      (Nat.Coprime.coprime_div_right _ (by grind))]
+    · exact gcd_dvd_left 4 ((3 * n - 1) / 2)
+    · refine Nat.coprime_sub_self_right (by grind) |>.1 <|
+        Nat.coprime_sub_self_right (by grind) |>.1 ?_
+      convert (Nat.sub_one_coprime_self (by grind : 0 < n)).symm using 1
+      grind
+  have h_gcd_odd : Odd ((4 * n).gcd ((3 * n - 1) / 2)) := Odd.of_dvd_nat
+    (odd_iff.2 <| Nat.odd_of_mod_four_eq_one (by grind)) <| gcd_dvd_right _ _
+  haveI := le_of_dvd (by omega) h_gcd_dvd
+  haveI : 1 ≤ (4 * n).gcd ((3 * n - 1) / 2) := by grind
+  rw [Nat.Coprime]
+  interval_cases ((4 * n).gcd ((3 * n - 1) / 2))
+  · rfl
+  · norm_num at h_gcd_odd
+  · omega
+  · norm_num at h_gcd_odd
 
 lemma Nat.coprime_lemma2 {n : ℕ} (hn : n % 8 = 3) :
     (4 * n).Coprime ((n - 1) / 2) := by
@@ -199,9 +241,8 @@ lemma Nat.coprime_lemma2 {n : ℕ} (hn : n % 8 = 3) :
     exact Nat.Coprime.pow_left 2 cop4
   exact Coprime.mul_left cop3 cop2
 
-
 lemma Nat.coprime_lemma3 {n : ℕ} (hn : n % 8 = 5) :
-    (4 * n).Coprime ((3 * n - 1) / 2) := by
+   (4 * n).Coprime ((3 * n - 1) / 2) := by
   have A : n.Coprime (3 * n - 1) := by
     refine Nat.coprime_sub_self_right (by grind) |>.1 <|
       Nat.coprime_sub_self_right (by grind) |>.1 ?_
@@ -218,30 +259,28 @@ lemma Nat.coprime_lemma3 {n : ℕ} (hn : n % 8 = 5) :
   exact Coprime.mul_left D C
 
 lemma Nat.sum_threeSq_of_mod_eight_eq_one {n : ℕ} (hn : n % 8 = 1) :
-    ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
-  -- obtain ⟨k, hk⟩ := @Nat.dvd_sub_mod 8 n
-  -- haveI : Even (3 * n - 1) := by grind
+    ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 :=
+  if hnn : n = 1 then ⟨1, 0, 0, by norm_num [hnn]⟩ else by
   have h1 : ((3 * n - 1) / 2) % 4 = 1 := by grind
   haveI : Odd ((3 * n - 1) / 2) := odd_iff.2 <| Nat.odd_of_mod_four_eq_one h1
-  have h2 : (4 * n).Coprime ((3 * n - 1) / 2) := by
-    have h_gcd_dvd : (4 * n).gcd ((3 * n - 1) / 2) ∣ 4 := by
-      rw [Nat.Coprime.gcd_mul_right_cancel _
-        (Nat.Coprime.coprime_div_right _ (by grind))]
-      · exact gcd_dvd_left 4 ((3 * n - 1) / 2)
-      · refine Nat.coprime_sub_self_right (by grind) |>.1 <|
-          Nat.coprime_sub_self_right (by grind) |>.1 ?_
-        convert (Nat.sub_one_coprime_self (by grind : 0 < n)).symm using 1
-        grind
-    have h_gcd_odd : Odd ((4 * n).gcd ((3 * n - 1) / 2)) := Odd.of_dvd_nat this <| gcd_dvd_right _ _
-    haveI := le_of_dvd (by omega) h_gcd_dvd
-    haveI : 1 ≤ (4 * n).gcd ((3 * n - 1) / 2) := by grind
-    rw [Nat.Coprime]
-    interval_cases ((4 * n).gcd ((3 * n - 1) / 2))
-    · rfl
-    · norm_num at h_gcd_odd
-    · omega
-    · norm_num at h_gcd_odd
-  obtain ⟨p, hp1, hp2, hp3⟩ := @Nat.forall_exists_prime_gt_and_modEq (7 * n) _ _ (by omega) h2
+  have h2 : (4 * n).Coprime ((3 * n - 1) / 2) := Nat.coprime_lemma1 hn
+  obtain ⟨p, hp1, hp2, hp3⟩ := @Nat.forall_exists_prime_gt_and_modEq (7 * n) _ _ (by omega) h2.symm
+  have hj' := dvd_sub_comm.1 <| Nat.modEq_iff_dvd.1 hp3
+  rw [← Nat.cast_sub (Nat.div_le_of_le_mul <| by grw [hp1]; norm_num; linarith)] at hj'
+  norm_cast at hj'
+  obtain ⟨j, hj1⟩ := hj'
+  rw [Nat.sub_eq_iff_eq_add (by grind)] at hj1
+  have hp4 : Odd p := by grind
+  have hj2 : 1 < j := by_contra fun hjj ↦ by
+    interval_cases j <;> grind
+  let d' := 8 * j + 3
+  have hd1 : 2 * p = d' * n - 1 := by
+    simp only [hj1, mul_add, Nat.mul_div_cancel_left' (by grind : 2 ∣ (3 * n - 1)), d']
+    grind
+  refine Nat.quadResidue_to_sum_threeSq n (by grind) ⟨d', by grind, hd1 ▸ ?_⟩
+  have := ZMod.isSquare_coprime_split (p := p) hp4 (-d' : ℤ) (by grind) ?_
+  · rwa [Int.cast_neg, Int.cast_natCast] at this
+
   sorry
 
 lemma Nat.sum_threeSq_of_mod_eight_eq_three {n : ℕ} (hn : n % 8 = 3) :
