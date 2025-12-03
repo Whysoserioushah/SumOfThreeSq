@@ -7,9 +7,8 @@ def Nat.IsRepresentedBy {ι} [Fintype ι] (Q : QuadraticMap ℤ (ι → ℤ) ℤ
 
 lemma exists_representedPosNat {ι} [Fintype ι] [Nonempty ι] {Q : QuadraticMap ℤ (ι → ℤ) ℤ}
     (hQ : Q.PosDef) : ∃ n : ℕ, n.IsRepresentedBy Q ∧ 0 < n :=
-    -- I changed the hypothesis to include 0 < n but don't know how to modify this.
-    -- ⟨(Q 1).natAbs, ⟨1, Int.eq_natAbs_of_nonneg (le_of_lt <| hQ 1 (by simp))⟩⟩
-  sorry
+    ⟨(Q 1).natAbs, ⟨1, Int.eq_natAbs_of_nonneg (le_of_lt <| hQ 1 (by simp))⟩,
+    Int.natAbs_pos.2 <| ne_of_gt (hQ 1 (by simp))⟩
 
 lemma binaryQuadMap_bound1 (d : ℤ) (Q' : PosDefQuadMap 2) (hQ' : Q'.matrix.det = d) :
     ∃ Q : PosDefQuadMap 2, EquivalentQuad 2 Q Q' ∧
