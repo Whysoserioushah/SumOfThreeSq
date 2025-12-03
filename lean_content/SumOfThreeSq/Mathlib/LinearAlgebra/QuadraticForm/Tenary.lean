@@ -10,14 +10,14 @@ def G (A : Matrix (Fin 3) (Fin 3) ℤ) : Matrix (Fin 2) (Fin 2) ℤ :=
   ![![A 0 0 * A 1 1 - A 0 1 ^ 2, A 0 0 * A 1 2 - A 0 1 * A 0 2],
     ![A 0 0 * A 1 2 - A 0 1 * A 0 2, A 0 0 * A 2 2 - (A 0 2)^2]]
 
-lemma G_def (A : Matrix (Fin 3) (Fin 3) ℤ) (hA : A.IsSymm) :
+lemma G_det (A : Matrix (Fin 3) (Fin 3) ℤ) (hA : A.IsSymm) :
     (G A).det = A 0 0 * A.det := by
   -- simp [Matrix.det_apply]
   sorry
 
 -- lemma 1.3 (1)
-lemma apply (A : Matrix (Fin 3) (Fin 3) ℤ) (v : Fin 3 → ℤ) :
-    A.toQuadraticMap' v = (A 0 0 * v 0 + A 0 1 * v 1 + A 0 2 * v 2) ^ 2 +
+lemma apply (A : Matrix (Fin 3) (Fin 3) ℤ) (hA : A.IsSymm) (v : Fin 3 → ℤ) :
+    A 0 0 * A.toQuadraticMap' v = (A 0 0 * v 0 + A 0 1 * v 1 + A 0 2 * v 2) ^ 2 +
       (G A).toQuadraticMap' ![v 1, v 2] := by
   sorry
 

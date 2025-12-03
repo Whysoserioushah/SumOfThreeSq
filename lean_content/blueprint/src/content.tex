@@ -71,6 +71,7 @@ This equivalence relation preserves determinants, that is, if $A\sim B$, then $\
 \end{lemma}
 
 \begin{proof}
+\leanok
 Since $\det U = 1$ for $U\in\mathrm{SL}_n(\mathbb{Z})$, we have
 \[
   \det(A\cdot U) = \det(U^T A U)
@@ -86,6 +87,7 @@ so the action preserves determinants.
 If $A\sim B$, then $A$ is symmetric if and only if $B$ is symmetric.
 \end{lemma}
 \begin{proof}
+\leanok
 Easy check both in math and in \sf{lean}.
 \end{proof}
 
@@ -145,6 +147,7 @@ Equivalent forms have the same discriminant.
 \end{lemma}
 
 \begin{proof}
+\leanok
 \uses{lem:mat_det_preserved}
 Trivial from Lemma~\ref{lem:mat_det_preserved}.
 \end{proof}
@@ -167,6 +170,7 @@ $U\in\mathrm{SL}_n(\mathbb{Z})$, and for any integer vector $x$ we have
 \end{lemma}
 
 \begin{proof}
+\leanok
 By direct calculation.
 \end{proof}
 
@@ -180,7 +184,6 @@ form equivalent to $x_1^2+\cdots+x_n^2$ represents all non–negative
 integers.
 
 \begin{definition}
-\leanok
 A quadratic form $F_A$ is \emph{positive–definite} if
 \[
   F_A(x_1,\dots,x_n) > 0
@@ -190,6 +193,18 @@ Any form equivalent to a positive–definite form is again
 positive–definite.
 \end{definition}
 
+\begin{lemma}
+\label{lem:QuadMap_posdef_equiv}
+\lean{QuadraticMap.PosDef_ofEquiv}
+\leanok
+If a quadratic map $P$ is positive–definite and $P\sim Q$ as quadratic maps, then
+$Q$ is positive–definite.
+\end{lemma}
+\begin{proof}
+\leanok
+Trivial follows from the definiton of positive-definite.
+\end{proof}
+
 A quadratic form in two variables is called a \emph{binary} quadratic
 form; a quadratic form in three variables is called a \emph{ternary}
 quadratic form.
@@ -198,12 +213,8 @@ discriminant $1$.
 
 \subsection*{Binary quadratic forms}
 
-We now restrict attention to the case $n=2$.
+We now restrict attention to the case $n=2$. \\
 
-\begin{definition}
-\label{def:PosDefQuadMap}
-\lean{PosDefQuadMap}
-\leanok
 Let
 \[
   A =
@@ -222,8 +233,13 @@ The discriminant of $F_A$ is
 \[
   d = \det(A) = a_{1,1}a_{2,2} - a_{1,2}^2.
 \]
-\end{definition}
 
+\begin{remark}
+Although we "defined" the discriminant of a quadratic form, since it really is just the determinant of the 
+associate matrix (and in the reference whenever we talk about properties about quadratic we almost always mean the 
+properties about the underlying matrix and there will always be one since we defined it that way). Note that 
+in mathlib there is a different definition of a quadratic map which doesn't involve matrix.
+\end{remark}
 
 \begin{lemma}
 \label{lem:binary_posdef}
@@ -237,6 +253,7 @@ The binary quadratic form $F_A$ is positive–definite if and only if
 \end{lemma}
 
 \begin{proof}
+\leanok
 First suppose $F_A$ is positive–definite.
 Then
 \[
@@ -291,7 +308,8 @@ such that
 \end{lemma}
 
 \begin{proof}
-\uses{def:QuadMap_equiv}
+\uses{def:QuadMap_equiv, lem:QuadMap_posdef_equiv}
+\leanok
 Let $F$ be a positive–definite binary quadratic form of discriminant
 $d$, and let $C$ be the corresponding symmetric matrix.
 Among all forms equivalent to $F$, choose one whose associated matrix
@@ -313,9 +331,8 @@ $(u_1,u_2) = (1,0)$, so that in this basis the matrix has the form
 and $F_B(1,0) = a_{1,1}$ is the smallest positive integer represented
 by any form equivalent to $F$.
 
-\medskip
 \noindent
-\emph{Step 1: Making $|b_{1,2}|$ small.}
+\emph{Step 1: Making $|b_{1,2}|$ small.}\\
 Consider the unimodular matrix
 \[
   U_t =
@@ -345,9 +362,8 @@ Hence we may choose $t$ so that
 \]
 which is equivalent to $2|a_{1,2}|\le a_{1,1}$.
 
-\medskip
 \noindent
-\emph{Step 2: Ensuring $a_{1,1}\le a_{2,2}$.}
+\emph{Step 2: Ensuring $a_{1,1}\le a_{2,2}$.}\\
 If $a_{2,2}<a_{1,1}$ for the matrix $A_t$, we can apply the symmetry
 of the variables and replace $(x_1,x_2)$ by $(x_2,x_1)$.
 Algebraically, this corresponds to conjugating by the permutation
@@ -362,9 +378,8 @@ After at most one such step we obtain a matrix $A$ satisfying
   2|a_{1,2}|\le a_{1,1}\le a_{2,2}.
 \]
 
-\medskip
 \noindent
-\emph{Step 3: Bounding $a_{1,1}$ in terms of $d$.}
+\emph{Step 3: Bounding $a_{1,1}$ in terms of $d$.}\\
 For this reduced matrix $A$ we have
 \[
   d = \det(A) = a_{1,1}a_{2,2} - a_{1,2}^2.
@@ -387,7 +402,7 @@ desired properties.
 Now we specialize to discriminant $d=1$.
 
 \begin{theorem}
-\label{thm:binary-disc1}
+\label{thm:binary_quadMap_det_eq_one}
 \lean{binaryQuadMap_of_det_eq_one}
 Every positive–definite binary quadratic form of discriminant $1$
 is equivalent to the form
@@ -430,7 +445,7 @@ Therefore $F$ is equivalent to $x_1^2 + x_2^2$, which completes the
 proof.
 \end{proof}
 
-\section*{2\quad Ternary Quadratic Forms}
+\subsection*{Ternary Quadratic Forms}
 
 \begin{definition}
 \label{def:QuadMap_Tenary_G}
@@ -452,20 +467,49 @@ a_{1,1} F_A(x_1,x_2,x_3)
 \end{equation}
 \end{definition}
 
-\medskip
+\begin{lemma}
+\label{lem:QuadMap_Tenary_G_det}
+\lean{QuadraticMap.Tenary.G_det}
+\uses{def:QuadMap_Tenary_G}
+\leanok 
+Let $A$ be any symmetric $3\times 3$ matrix with integer entries. Then
+\[det(G_A) = A_{11} * det(A)\].
+\end{lemma} 
+\begin{proof}
+\leanok
+By direct calculation.
+\end{proof}
+
+\begin{lemma}
+\label{lem:ternary_G_apply}
+\lean{QuadraticMap.Tenary.apply}
+\leanok 
+For any $A \in M_n(\mathbb{Z})$ where $A$ is symmetric and for any $v \in \mathbb{Z}^3$, we have
+that 
+\[
+A_{11} * F_A(v) = (A_{11} v_1 + A_{12}v_2 + A_{23}v_3)^2 + G_A(v_2, v_3).
+\]
+\end{lemma}
+\begin{proof}
+\leanok
+\uses{def:QuadMap_Tenary_G}
+After unfolding all the definitions this is just a direct calculation (by construction of $G$).
+\end{proof}
 
 \begin{lemma}
 \label{lem:ternary_posdef_iff}
 \lean{QuadraticMap.Tenary.PosDef_iff}
-\emph{The ternary form $F_A$ is positive-definite if and only if the three integers}
+The ternary form $F_A$ is positive-definite if and only if the three integers
 \[
 a_{1,1},\qquad d' = a_{1,1}a_{2,2} - a_{1,2}^2,\qquad 
 d = \det(A)
 \]
-\emph{are all positive.}
+are all positive.
 \end{lemma}
 
 \begin{proof}
+\uses{lem:binary_posdef}
+\leanok
 Assume first that $F_A$ is positive-definite.  
 Fix integers $x_2, x_3$ such that $(x_2,x_3) \neq (0,0)$, and choose
 \[
@@ -478,14 +522,14 @@ a_{1,1} F_A(x_1, x_2, x_3)
 = G_A(x_2,x_3).
 \]
 Since $F_A$ is positive-definite, the left side is $>0$, so $G_A$ is a positive‐definite
-binary quadratic form. By Lemma 1.1 this implies
+binary quadratic form. By Lemma ~\ref{lem:binary_posdef} this implies
 \[
 a_{1,1} > 0,\qquad d' = a_{1,1}a_{2,2} - a_{1,2}^2 > 0.
 \]
 Also the discriminant of $G_A$ is $d > 0$, hence $\det(A) > 0$.
 
 Conversely, assume $a_{1,1}, d', d > 0$.  
-Then $G_A$ is positive-definite (Lemma 1.1).  
+Then $G_A$ is positive-definite (~\ref{lem:binary_posdef}).  
 If $F_A(x_1,x_2,x_3) = 0$, then \eqref{eq:1.3} gives
 \[
 (a_{1,1}x_1 + a_{1,2}x_2 + a_{1,3}x_3)^2 + G_A(x_2,x_3) = 0.
@@ -496,7 +540,9 @@ Hence $F_A$ is positive-definite.
 \end{proof}
 
 \begin{lemma}
-\lean{QuadraticMap.Tenary.lemma4a}
+\label{lem:ternary_lemma4}
+\lean{QuadraticMap.Tenary.lemma4a, QuadraticMap.Tenary.lemma4b}
+\leanok
 Let $B = (b_{i,j})$ be a symmetric $3\times 3$ matrix such that $F_B$ is
 positive-definite, and let $G_B$ be the corresponding positive-definite binary quadratic form, defined by
 \[
@@ -531,6 +577,8 @@ and $A^*$ is independent of $r$ and $s$.
 \medskip
 
 \begin{proof}
+\leanok
+\uses{def:QuadMap_Tenary_G, lem:QuadMap_posdef_equiv}
 A direct calculation using the block structure of $V_{r,s}$ shows that the
 upper‐left $1\times 1$ entry of $A_{r,s}$ equals $b_{1,1}$ and that the lower
 $2\times 2$ block of $A_{r,s}$ equals the matrix $A^*$.  
@@ -539,18 +587,22 @@ Substituting these expressions into \eqref{eq:1.3} gives the identity claimed.
 
 \bigskip
 
-\begin{lemma}
-\emph{If integers $u_{1,1},u_{2,1},u_{3,1}$ satisfy}
+\begin{construction}
+\label{constr:mkSL3_from_coprime_int}
+\lean{Matrix.SpcecialLinearGroup.mkFin3FromInt}
+\leanok
+If integers $u_{1,1},u_{2,1},u_{3,1}$ satisfy
 \[
 \gcd(u_{1,1},u_{2,1},u_{3,1}) = 1,
 \]
-\emph{then there exist integers $u_{i,j}$ for $i=1,2,3$ and $j=2,3$ such that the matrix}
+then there exist integers $u_{i,j}$ for $i=1,2,3$ and $j=2,3$ such that the matrix
 \[
 U = (u_{i,j}) \in SL_3(\mathbb{Z}).
 \]
-\end{lemma}
+\end{construction}
 
 \begin{proof}
+\leanok
 Let $\gcd(u_{1,1},u_{2,1}) = a$.  Choose integers $u_{1,2},u_{2,2}$ such that
 \[
 u_{1,1}u_{2,2} - u_{2,1}u_{1,2} = a.
@@ -570,6 +622,8 @@ Then the resulting matrix $U$ has determinant $1$.
 
 
 \begin{lemma}
+\lean{QuadraticMap.Tenary.lemma6}
+\leanok
 Every equivalence class of positive-definite ternary quadratic forms of discriminant $d$ contains a representative
 \[
 F(x_1,x_2,x_3) = \sum_{i,j} a_{i,j} x_i x_j
@@ -579,6 +633,8 @@ F(x_1,x_2,x_3) = \sum_{i,j} a_{i,j} x_i x_j
 \end{lemma}
 
 \begin{proof}
+\leanok
+\uses{lem:ternary_posdef_iff, constr:mkSL3_from_coprime_int, lem:QuadMap_posdef_equiv}
 Let $F$ be positive-definite with determinant $d$, and let $C$ be its coefficient
 matrix. Let $a_{1,1}$ be the smallest positive integer represented by $F$, so that
 \[
@@ -587,13 +643,13 @@ F(u_{1,1}, u_{2,1}, u_{3,1}) = a_{1,1}
 for some integers $u_{1,1},u_{2,1},u_{3,1}$.  
 Replacing the vector by a primitive one if necessary, we may assume the
 three integers are coprime.  
-By Lemma~1.5 choose $U \in SL_3(\mathbb{Z})$ whose first column is this
+By Lemma~\ref{constr:mkSL3_from_coprime_int} choose $U \in SL_3(\mathbb{Z})$ whose first column is this
 vector, and set
 \[
 B = U^T C U.
 \]
 Then $F$ is equivalent to $F_B$, and $b_{1,1} = a_{1,1}$ is still minimal.
-Lemma~1.3 then implies the decomposition
+Lemma~\ref{lem:ternary_posdef_iff} then implies the decomposition
 \[
 a_{1,1} F_B(x_1,x_2,x_3)
 = (b_{1,1} x_1 + b_{1,2}x_2 + b_{1,3}x_3)^2 + G_B(x_2,x_3),
@@ -610,7 +666,7 @@ a_{1,1}^2 \le 9 d,
 i.e. $a_{1,1} < 3\sqrt{d}$, completing the proof.
 \end{proof}
 
-\section{Sums of three squares}
+\section*{2\quad Sums of three squares}
 
 In this section we determine the integers that can be written as the sum of
 three squares. The proof uses the fact that a number is the sum of three squares
@@ -840,5 +896,60 @@ A similar calculation, together with quadratic reciprocity, again shows that
 \left(\frac{-d'}{p}\right) = 1.
 \]
 In both cases $-d'$ is a quadratic residue modulo $p$, and hence modulo
-$2p=d'n-1$.  Lemma~\ref{lem:three-squares-dprime}
+$2p=d'n-1$.  Lemma~\ref{lem:three-squares-dprime} then implies that $n$ is
+a sum of three squares.
+\end{proof}
+
+\begin{theorem}[Gauss]\label{thm:Gauss-three-squares}
+A positive integer $N$ can be represented as the sum of three squares if and
+only if $N$ is not of the form
+\[
+N = 4^{\alpha}(8k+7)
+\]
+for some integers $\alpha\ge 0$ and $k\ge 0$.
+\end{theorem}
+
+\begin{proof}
+Since
+\[
+x^{2} \equiv 0,1,\text{ or }4 \pmod 8
+\]
+for every integer $x$, it follows that a sum of three squares can never be
+congruent to $7$ modulo $8$.
+
+Suppose $4m$ is a sum of three squares.  Then there exist integers $x_1,x_2,x_3$
+such that
+\[
+4m = x_1^{2} + x_2^{2} + x_3^{2}.
+\]
+This is possible only if $x_1,x_2,x_3$ are all even, and so
+\[
+m = \left(\frac{x_1}{2}\right)^{2}
+  + \left(\frac{x_2}{2}\right)^{2}
+  + \left(\frac{x_3}{2}\right)^{2}.
+\]
+Therefore $4^{\alpha}m$ is the sum of three squares if and only if $m$ is the
+sum of three squares.  This proves that no integer of the form $4^{\alpha}(8k+7)$
+can be a sum of three squares.
+
+Every positive integer $N$ can be written uniquely in the form
+\[
+N = 4^{\alpha} m,
+\]
+where either $m\equiv 2 \pmod 4$ or
+$m\equiv 1,3,5,$ or $7 \pmod 8$.  By Lemma~\ref{lem:n2mod4} and
+Lemma~\ref{lem:n135mod8}, the integer $N$ is a sum of three squares unless
+$m\equiv 7 \pmod 8$.  This completes the proof.
+\end{proof}
+
+\begin{theorem}\label{thm:three-odd-squares}
+If $N$ is a positive integer such that $N\equiv 3 \pmod 8$, then $N$ is the
+sum of three odd squares.
+\end{theorem}
+
+\begin{proof}
+Recall that $x^{2}\equiv 0,1,$ or $4 \pmod 8$ for every integer $x$.
+If $N\equiv 3\pmod 8$ is a sum of three squares, then each of the three squares
+must be congruent to $1$ modulo $8$, and so each of the three integers must be
+odd.  Thus $N$ is a sum of three odd squares.
 \end{proof}
