@@ -1,4 +1,6 @@
+import SumOfThreeSq.ForwardDirection
 import SumOfThreeSq.InverseDirection
+import SumOfThreeSq.MainTheorem
 import SumOfThreeSq.Mathlib.Data.Matrix.Mul
 import SumOfThreeSq.Mathlib.LinearAlgebra.QuadraticForm.Basic
 import SumOfThreeSq.Mathlib.LinearAlgebra.QuadraticForm.Binary
