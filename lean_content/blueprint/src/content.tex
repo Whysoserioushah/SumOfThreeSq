@@ -184,6 +184,9 @@ form equivalent to $x_1^2+\cdots+x_n^2$ represents all non–negative
 integers.
 
 \begin{definition}
+\label{def:QuadMap_posdef}
+\lean{QuadraticMap.PosDef}
+\mathlibok
 A quadratic form $F_A$ is \emph{positive–definite} if
 \[
   F_A(x_1,\dots,x_n) > 0
@@ -201,6 +204,7 @@ If a quadratic map $P$ is positive–definite and $P\sim Q$ as quadratic maps, t
 $Q$ is positive–definite.
 \end{lemma}
 \begin{proof}
+\uses{def:QuadMap_equiv, def:QuadMap_posdef}
 \leanok
 Trivial follows from the definiton of positive-definite.
 \end{proof}
@@ -253,6 +257,7 @@ The binary quadratic form $F_A$ is positive–definite if and only if
 \end{lemma}
 
 \begin{proof}
+\uses{def:QuadMap_posdef}
 \leanok
 First suppose $F_A$ is positive–definite.
 Then
@@ -412,7 +417,7 @@ is equivalent to the form
 \end{theorem}
 
 \begin{proof}
-\uses{lem:binary-reduction}
+\uses{lem:binary-reduction, def:QuadMap_equiv}
 Let $F$ be a positive–definite binary quadratic form of discriminant
 $d=1$, and let $F_A$ be a reduced representative as in
 Lemma~\ref{lem:binary-reduction}.
@@ -508,7 +513,7 @@ are all positive.
 \end{lemma}
 
 \begin{proof}
-\uses{lem:binary_posdef}
+\uses{lem:binary_posdef, lem:QuadMap_posdef_equiv}
 \leanok
 Assume first that $F_A$ is positive-definite.  
 Fix integers $x_2, x_3$ such that $(x_2,x_3) \neq (0,0)$, and choose
@@ -623,6 +628,7 @@ Then the resulting matrix $U$ has determinant $1$.
 
 \begin{lemma}
 \lean{QuadraticMap.Tenary.lemma6}
+\label{lem:ternary_lemma6}
 \leanok
 Every equivalence class of positive-definite ternary quadratic forms of discriminant $d$ contains a representative
 \[
@@ -666,6 +672,22 @@ a_{1,1}^2 \le 9 d,
 i.e. $a_{1,1} < 3\sqrt{d}$, completing the proof.
 \end{proof}
 
+\begin{lemma}
+\label{lem:ternary_det_eq_one}
+\lean{QuadraticMap.Tenary.det_eq_one}
+\leanok 
+Every positive–definite ternary quadratic form of discriminant $1$
+is equivalent to the form
+\[x_1^2 + x_2^2 + x_3^2.
+\]
+\end{lemma}
+
+\begin{proof}
+\leanok
+\uses{lem:ternary_lemma6, thm:binary_quadMap_det_eq_one}
+TO BE ADDED.
+\end{proof}
+
 \section*{2\quad Sums of three squares}
 
 In this section we determine the integers that can be written as the sum of
@@ -677,12 +699,16 @@ primes in arithmetic progressions.
 
 \begin{lemma}
 \label{lem:three-squares-dprime}
+\lean{Nat.quadResidue_to_sum_threeSq}
+\leanok
 Let $n>2$.  If there exists a positive integer $d'$ such that $-d'$ is a
 quadratic residue modulo $d'n-1$, then $n$ can be represented as the sum
 of three squares.
 \end{lemma}
 
 \begin{proof}
+\leanok
+\uses{lem:ternary_det_eq_one, lem:ternary_posdef_iff}
 If $-d'$ is a quadratic residue modulo $d'n-1$, then there exist integers
 $a_{1,2}$ and $a_{2,2}$ such that
 \[
@@ -708,24 +734,28 @@ Its determinant is
         = d'n - (d'n-1) = 1,
 \]
 so the corresponding ternary quadratic form $F_A$ has discriminant~$1$.
-By Lemma~1.3, $F_A$ is positive–definite, and by construction
+By Lemma~\ref{lem:ternary_posdef_iff}, $F_A$ is positive–definite, and by construction
 \[
 F_A(0,0,1) = n,
 \]
 so $F_A$ represents $n$.
 
-By Theorem~1.3, every positive–definite ternary quadratic form of
+By Theorem~\ref{lem:ternary_det_eq_one}, every positive–definite ternary quadratic form of
 discriminant~$1$ is equivalent to the form $x_1^2 + x_2^2 + x_3^2$, and
 equivalent forms represent the same integers.  Hence $n$ is a sum of
 three squares.
 \end{proof}
 
-\begin{lemma}\label{lem:n2mod4}
+\begin{lemma}
+\label{lem:n2mod4}
+\lean{Nat.mod_four_eq_two_to_sum_threeSq}
+\leanok
 If $n$ is a positive integer and $n\equiv 2 \pmod 4$, then $n$ can be
 represented as the sum of three squares.
 \end{lemma}
 
 \begin{proof}
+\uses{lem:three-squares-dprime}
 Since $(4n,n-1)=1$, it follows from Dirichlet's theorem on primes in
 arithmetic progressions that the progression
 \[
