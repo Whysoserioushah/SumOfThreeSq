@@ -445,6 +445,7 @@ lemma Finset.prod_zmod_χ₈_eq (s : Finset ℕ) (hs : ∀ i ∈ s, ¬ 2 ∣ i) 
 instance {n : ℕ} (x : n.primeFactors) : Fact x.1.Prime :=
   ⟨Nat.prime_of_mem_primeFactors x.2⟩
 
+
 -- lemma legendreSym.pow_two {p : ℕ} [Fact p.Prime] (a : ℤ) :
 --     (legendreSym p a) ^ 2 = 1 := by
 --   rw [legendreSym.sq_one]
@@ -480,9 +481,9 @@ lemma Nat.sum_threeSq_of_mod_eight_eq_one {n : ℕ} (hn : n % 8 = 1) :
   · rwa [Int.cast_neg, Int.cast_natCast] at this
   -- simp only [Int.cast_neg, Int.cast_natCast]
   haveI : Fact (Prime p) := ⟨hp2⟩
-  have hq1 (q) (hq : q ∈ d'.primeFactors) : (2 * p) % (q : ℤ) = -1 := by sorry
-  have hq2 (q) (hq : q ∈ d'.primeFactors) : p.Coprime q := by sorry
-  have hp5 : p % 4 = 1 := by sorry
+  have hq1 (q) (hq : q ∈ d'.primeFactors) : (2 * p) % (q : ℤ) = -1 := by
+    zify at hd1; rw [hd1, Nat.cast_sub (by omega)]; sorry
+  have hp5 : p % 4 = 1 := by grind
   rw [← legendreSym.eq_one_iff p
   -- (by
   --   simp only [Int.cast_neg, Int.cast_natCast, ne_eq, neg_eq_zero]
