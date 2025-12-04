@@ -20,3 +20,4 @@ print.*
 docs/-verso-js/*
 docs/-verso-css/*
 docs/*/*.css
+*/.claude/*

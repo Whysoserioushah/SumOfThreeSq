@@ -2,8 +2,6 @@ import SumOfThreeSq.Mathlib.SpecialLinearGroup.Basic
 
 open Matrix.SpecialLinearGroup
 
-
-
 def Nat.IsRepresentedBy {ι} [Fintype ι] (Q : QuadraticMap ℤ (ι → ℤ) ℤ) (n : ℕ) : Prop :=
   ∃ v : ι → ℤ, Q v = n
 
