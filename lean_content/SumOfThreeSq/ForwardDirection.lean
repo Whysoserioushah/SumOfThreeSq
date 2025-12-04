@@ -394,6 +394,54 @@ lemma Nat.mod_eight_eq (n : ℕ) (hn : Odd n) : n % 8  =
 -- instance (n : ℕ) : Fintype { x // x ∈ n.primeFactors } := n.primeFactors.fintypeCoeSort
   -- Fintype.ofFinset n.primeFactors (by sorry)
 
+lemma Nat.pow_three_mod_eight (k : ℕ) : 3 ^ k % 8 = if Even k then 1 else 3 := by
+  induction k with
+  | zero => simp
+  | succ k ih =>
+    split_ifs with hk
+    · have : ¬ Even k := by grind
+      simp [this] at ih
+      rw [pow_succ, mul_mod, ih]
+    · have : Even k := by grind
+      simp [this] at ih
+      rw [pow_succ, mul_mod, ih]
+
+lemma Nat.pow_seven_mod_eight (k : ℕ) : 7 ^ k % 8 = if Even k then 1 else 7 := by
+  induction k with
+  | zero => simp
+  | succ k ih =>
+    split_ifs with hk
+    · have : ¬ Even k := by grind
+      simp [this] at ih
+      rw [pow_succ, mul_mod, ih]
+    · have : Even k := by grind
+      simp [this] at ih
+      rw [pow_succ, mul_mod, ih]
+
+lemma Nat.sum_index_even_of_mod_eight {n : ℕ} (hn0 : Odd n) (hn : n % 8 = 3) :
+    Even (∑ i ∈ n.primeFactors with i % 8 = 5 ∨ i % 8 = 7, n.factorization i) := by
+  have := hn ▸ n.mod_eight_eq hn0
+  rw [Finset.prod_pow_eq_pow_sum, Finset.prod_pow_eq_pow_sum, mul_mod, pow_three_mod_eight,
+    pow_seven_mod_eight] at this
+  split_ifs at this with h1 h2
+  all_goals grind
+
+#check Finset.prod_pow_eq_pow_sum
+lemma Finset.prod_zmod_χ₈_eq (s : Finset ℕ) (hs : ∀ i ∈ s, ¬ 2 ∣ i) (f : ℕ → ℕ) :
+    ∏ i ∈ s, ZMod.χ₈' i ^ (f i) = ∏ i ∈ s with i % 8 = 5 ∨ i % 8 = 7, (-1) ^ (f i) := by
+  -- simp? [ZMod.χ₈'_int_eq_if_mod_eight, -ZMod.χ₈'_apply]
+  conv_lhs => enter[2, i, 1]; rw [← Int.cast_natCast, ZMod.χ₈'_int_eq_if_mod_eight i]
+  -- simp [zero_pow]
+  simp only [EuclideanDomain.mod_eq_zero, Int.reduceNeg, ite_pow, one_pow]
+  rw [Finset.prod_ite]
+  conv_lhs => enter[1, 1]; rw [show {x ∈ s | 2 ∣ (Nat.cast (R := ℤ) x)} = ∅ by
+    simp only [Nat.two_dvd_ne_zero, filter_eq_empty_iff, Int.two_dvd_ne_zero] at hs ⊢;
+    exact_mod_cast hs]
+  simp only [prod_empty, Int.two_dvd_ne_zero, Int.reduceNeg, one_mul]
+  rw [Finset.prod_ite, Finset.prod_eq_one (by simp)]
+  simp only [not_or, Int.reduceNeg, one_mul]
+  congr 1; grind
+
 instance {n : ℕ} (x : n.primeFactors) : Fact x.1.Prime :=
   ⟨Nat.prime_of_mem_primeFactors x.2⟩
 
@@ -406,8 +454,6 @@ lemma legendreSym.neg_of_one_mod_four (p : ℕ) (hp : p ≠ 2) (hp' : p % 4 = 1)
     (n : ℤ) : legendreSym p (-n) = legendreSym p n := by
   rw [← neg_one_mul, legendreSym.mul, legendreSym.at_neg_one hp,
     ZMod.χ₄_nat_one_mod_four hp', one_mul]
-
-#check legendreSym.at_two
 
 lemma Nat.sum_threeSq_of_mod_eight_eq_one {n : ℕ} (hn : n % 8 = 1) :
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 :=
@@ -466,17 +512,14 @@ lemma Nat.sum_threeSq_of_mod_eight_eq_one {n : ℕ} (hn : n % 8 = 1) :
       ← Int.cast_natCast]
     tactic =>
     nth_rw 2 [← Int.cast_natCast]
-  simp_rw [← ZMod.χ₈'_int_eq_χ₄_mul_χ₈ ]
-  -- conv_lhs =>
-  --   enter [2, a]
-  -- have h (x) (hx : x ∈ d'.primeFactors) : legendreSym p x =
-  --   @legendreSym x ⟨Nat.prime_of_mem_primeFactors hx⟩ p :=
-  --   @legendreSym.quadratic_reciprocity_one_mod_four _ _ _
-  --   ⟨Nat.prime_of_mem_primeFactors hx⟩ hp5 (by grind)|>.symm
-  -- simp_rw [h]
+  simp_rw [← ZMod.χ₈'_int_eq_χ₄_mul_χ₈]
+  rw [← Finset.prod_subtype (p := fun i ↦ i ∈ d'.primeFactors) d'.primeFactors (by simp)
+    (fun x ↦ (ZMod.χ₈' ((x : ℤ) : ZMod 8)) ^ _)]
+  simp_rw [Int.cast_natCast]
+  rw [Finset.prod_zmod_χ₈_eq d'.primeFactors (by grind), Finset.prod_pow_eq_pow_sum,
+    neg_one_pow_eq_one_iff_even (by decide)]
+  exact d'.sum_index_even_of_mod_eight (by grind) (by grind)
 
-  sorry
-#check ZMod.χ₈'_int_eq_χ₄_mul_χ₈
 lemma Nat.sum_threeSq_of_mod_eight_eq_three {n : ℕ} (hn : n % 8 = 3) :
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
   sorry
