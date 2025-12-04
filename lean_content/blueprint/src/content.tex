@@ -599,7 +599,7 @@ and $A^*$ is independent of $r$ and $s$.
 \begin{proof}
 \leanok
 \uses{def:QuadMap_Tenary_G, lem:QuadMap_posdef_equiv, lem:mat_symm_preserved, 
-  lem:tenary_G_apply, lem:tenary_G_det}
+  lem:ternary_G_apply, lem:QuadMap_Tenary_G_det}
 A direct calculation using the block structure of $V_{r,s}$ shows that the
 upper‐left $1\times 1$ entry of $A_{r,s}$ equals $b_{1,1}$ and that the lower
 $2\times 2$ block of $A_{r,s}$ equals the matrix $A^*$.  
@@ -657,7 +657,7 @@ F(x_1,x_2,x_3) = \sum_{i,j} a_{i,j} x_i x_j
 \begin{proof}
 \leanok
 \uses{lem:ternary_posdef_iff, constr:mkSL3_from_coprime_int, lem:QuadMap_posdef_equiv, 
-  lem:mat_symm_preserved, lem:tenary_G_apply, lem:tenary_G_det}
+  lem:mat_symm_preserved, lem:ternary_G_apply, lem:QuadMap_Tenary_G_det}
 Let $F$ be positive-definite with determinant $d$, and let $C$ be its coefficient
 matrix. Let $a_{1,1}$ be the smallest positive integer represented by $F$, so that
 \[
