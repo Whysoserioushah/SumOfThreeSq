@@ -285,8 +285,54 @@ lemma Nat.sum_threeSq_of_mod_eight_eq_one {n : ℕ} (hn : n % 8 = 1) :
 
 lemma Nat.sum_threeSq_of_mod_eight_eq_three {n : ℕ} (hn : n % 8 = 3) :
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
-  sorry
+
+  have h1 : Nat.Coprime (4*n) ((n-1)/2) := by
+    exact coprime_lemma2 hn
+
+  obtain ⟨a, ha_pos, ha_prime⟩  :
+  exists a : ℕ, a > 0 ∧ Nat.Prime (4*n*a + (n-1)/2) := by
+    sorry
+
+  let p := 4*n*a + (n-1)/2
+  have hp : Nat.Prime p := ha_prime
+
+  let d : ℕ  := 8*a + 1
+  have hd : (d : ZMod 8) = 1 := by
+    grind
+
+  have h2 :
+     IsSquare (-d : ZMod (d*n - 1)) := by
+      sorry
+
+  have h3 :
+    IsSquare (-d : ZMod p) := by
+      sorry
+
+  apply Nat.quadResidue_to_sum_threeSq n (by omega) ⟨d, by grind, h2⟩
 
 lemma Nat.sum_threeSq_of_mod_eight_eq_five {n : ℕ} (hn : n % 8 = 5) :
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
-  sorry
+
+  have h1 : Nat.Coprime (4*n) ((3*n-1)/2) := by
+    exact coprime_lemma3 hn
+
+  obtain ⟨a, ha_pos, ha_prime⟩  :
+  exists a : ℕ, a > 0 ∧ Nat.Prime (4*n*a + (3*n - 1)/2) := by
+    sorry
+
+  let p := 4*n*a + (3*n - 1)/2
+  have hp : Nat.Prime p := ha_prime
+
+  let d : ℕ  := 8*a + 1
+  have hd : (d : ZMod 8) = 1 := by
+    grind
+
+  have h2 :
+     IsSquare (-d : ZMod (d*n - 1)) := by
+      sorry
+
+  have h3 :
+    IsSquare (-d : ZMod p) := by
+      sorry
+
+  apply Nat.quadResidue_to_sum_threeSq n (by omega) ⟨d, by grind, h2⟩
