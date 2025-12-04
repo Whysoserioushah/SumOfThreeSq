@@ -804,12 +804,18 @@ so $-d'$ is a quadratic residue modulo $p$ as required.  Lemma
 squares.
 \end{proof}
 
-\begin{lemma}\label{lem:n135mod8}
+\begin{lemma}
+\label{lem:n135mod8}
+\lean{Nat.sum_threeSq_of_mod_eight_eq_one, Nat.sum_threeSq_of_mod_eight_eq_three, 
+  Nat.sum_threeSq_of_mod_eight_eq_five}
+\leanok
 If $n$ is a positive integer such that $n\equiv 1,3,$ or $5 \pmod 8$, then
 $n$ can be represented as the sum of three squares.
 \end{lemma}
 
 \begin{proof}
+\uses{lem:three-squares-dprime}
+\leanok
 Clearly $1$ is a sum of three nonnegative squares.  Let $n>2$.  Define
 \[
 c =
@@ -896,7 +902,10 @@ $2p=d'n-1$.  Lemma~\ref{lem:three-squares-dprime} then implies that $n$ is
 a sum of three squares.
 \end{proof}
 
-\begin{theorem}[Gauss]\label{thm:Gauss-three-squares}
+\begin{theorem}[Gauss]
+\label{thm:Gauss-three-squares}
+\lean{Nat.sum_threeSq_iff}
+\leanok
 A positive integer $N$ can be represented as the sum of three squares if and
 only if $N$ is not of the form
 \[
@@ -906,6 +915,8 @@ for some integers $\alpha\ge 0$ and $k\ge 0$.
 \end{theorem}
 
 \begin{proof}
+\uses{lem:n2mod4, lem:n135mod8}
+\leanok
 Since
 \[
 x^{2} \equiv 0,1,\text{ or }4 \pmod 8
@@ -938,14 +949,14 @@ Lemma~\ref{lem:n135mod8}, the integer $N$ is a sum of three squares unless
 $m\equiv 7 \pmod 8$.  This completes the proof.
 \end{proof}
 
-\begin{theorem}\label{thm:three-odd-squares}
-If $N$ is a positive integer such that $N\equiv 3 \pmod 8$, then $N$ is the
-sum of three odd squares.
-\end{theorem}
+% \begin{theorem}\label{thm:three-odd-squares}
+% If $N$ is a positive integer such that $N\equiv 3 \pmod 8$, then $N$ is the
+% sum of three odd squares.
+% \end{theorem}
 
-\begin{proof}
-Recall that $x^{2}\equiv 0,1,$ or $4 \pmod 8$ for every integer $x$.
-If $N\equiv 3\pmod 8$ is a sum of three squares, then each of the three squares
-must be congruent to $1$ modulo $8$, and so each of the three integers must be
-odd.  Thus $N$ is a sum of three odd squares.
-\end{proof}
+% \begin{proof}
+% Recall that $x^{2}\equiv 0,1,$ or $4 \pmod 8$ for every integer $x$.
+% If $N\equiv 3\pmod 8$ is a sum of three squares, then each of the three squares
+% must be congruent to $1$ modulo $8$, and so each of the three integers must be
+% odd.  Thus $N$ is a sum of three odd squares.
+% \end{proof}

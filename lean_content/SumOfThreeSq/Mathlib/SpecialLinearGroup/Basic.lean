@@ -82,10 +82,9 @@ def toQuadraticMap'EquivSMul (A : M(n, R)) (U : SL(n, R)) :
 
 lemma toQuadraticMap'EquivSMul_apply (A : M(n, R)) (U : SL(n, R)) (v : n → R) :
     (toQuadraticMap'EquivSMul A U) v = Uᵀ⁻¹ • v := by rfl
--- lemma smul_toQuadraticMap' (U : SL(n, R)) (A : M(n, R)) :
---     (U • A).toQuadraticMap' = U.toGL • A.toQuadraticMap' := by
---   ext v
---   simp [smul_def', toQuadraticMap'_apply, dotProduct_mulVec_eq]
+
+lemma coe_smul {U : SL(n, R)} {A : M(n, R)} :
+    (U • A : M(n, R)) = U.1 * A * U.1.transpose := rfl
 
 theorem nonempty_isometryEquiv_of_rel {A B : M(n, R)} (h : rel A B) :
     Nonempty (A.toQuadraticMap'.IsometryEquiv B.toQuadraticMap') :=

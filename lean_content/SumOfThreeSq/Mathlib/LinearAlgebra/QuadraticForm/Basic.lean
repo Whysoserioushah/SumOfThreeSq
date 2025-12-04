@@ -19,6 +19,11 @@ lemma toQuadraticMap'_apply' {A : Matrix n n R} (v : n → R) :
   simpa [toQuadraticMap', toLinearMap₂'_apply] using Finset.sum_congr rfl
     fun i _ ↦ Finset.sum_congr rfl fun j _ ↦ by ring
 
+omit [DecidableEq n] in
+lemma mulVec_apply (M : Matrix n n R) (v : n → R) (i : n) :
+    (M *ᵥ v) i = ∑ j : n, M i j * v j := by
+  simp [mulVec, dotProduct]
+
 -- lemma toQuadraticMap'_id (v : n → R) : (1 : Matrix n n R).toQuadraticMap' v = ∑ i, v i ^ 2 := by
 --   sorry
 
