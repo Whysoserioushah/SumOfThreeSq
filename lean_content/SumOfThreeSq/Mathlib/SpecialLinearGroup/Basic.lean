@@ -94,11 +94,95 @@ theorem nonempty_isometryEquiv_of_rel {A B : M(n, R)} (h : rel A B) :
 lemma _root_.QuadraticMap.PosDef_ofEquiv {M1 M2} [AddCommGroup M1] [AddCommGroup M2] [Module R M1]
     [Module R M2] {Q1 Q2 : QuadraticMap R M1 M2} [PartialOrder M2] (h : Q1.IsometryEquiv Q2)
     (hQ1 : Q1.PosDef) : Q2.PosDef := by
-  sorry
+  intro x hx
+  rw [←QuadraticMap.IsometryEquiv.map_app h.symm]
+  apply hQ1
+  simpa
+
+lemma PosDef_if_PosDef_of_rel {A B : M(n, ℤ)} (h : rel A B) (hA : A.toQuadraticMap'.PosDef)
+    : B.toQuadraticMap'.PosDef := by
+  obtain ⟨U⟩ := nonempty_isometryEquiv_of_rel h
+  exact QuadraticMap.PosDef_ofEquiv U hA
 
 lemma _root_.QuadraticMap.Binary.PosDef_iff {A : M(Fin 2, ℤ)} (hA : A.IsSymm) :
     A.toQuadraticMap'.PosDef ↔ 1 ≤ A 0 0 ∧ 1 ≤ A.det := by
-  sorry
+  have h1 : A.toQuadraticMap' ![1, 0] = A 0 0 := by
+    simp [Matrix.toQuadraticMap'_apply, vecHead, mulVec]
+  constructor
+  · intro h
+    have h4: 1 ≤ A 0 0 := by
+      rw [←h1]
+      apply h
+      simp
+    constructor
+    · exact h4
+    · have h3: A.toQuadraticMap' ![-A 0 1, A 0 0] = (A 0 0) * A.det := by
+        rw [Matrix.toQuadraticMap'_apply]
+        simp [vecHead, vecTail, mulVec, det_fin_two]
+        ring
+      have h2: (A 0 0) * A.det ≥ 1 := by
+        rw [←h3]
+        apply h
+        simp [← h1]
+        have : 0 < A.toQuadraticMap' ![1, 0] := by
+          apply h
+          simp
+        intro
+        apply ne_of_gt
+        exact this
+      nlinarith
+  · intro h
+    have h2: ∀ v, (A 0 0) * (A.toQuadraticMap' v) = (A 0 0 * v 0
+        + A 0 1 * v 1)^2 + A.det * (v 1)^2 := by
+      intro v
+      rw [Matrix.toQuadraticMap'_apply]
+      simp [mulVec, det_fin_two]
+      have : A 1 0 = A 0 1 := by
+        apply Matrix.IsSymm.apply
+        exact hA
+      rw [this]
+      ring
+    have h3: ∀ v, 0 ≤ (A 0 0) * (A.toQuadraticMap' v) := by
+      intro v
+      rw [h2]
+      nlinarith
+    have h4: ∀ v, 0 ≤ A.toQuadraticMap' v := by
+      intro v
+      specialize h3 v
+      nlinarith
+    rw [QuadraticMap.PosDef]
+    intro x hx
+    by_contra h5
+    have : A.toQuadraticMap' x = 0 := by
+      apply eq_of_le_of_not_lt'
+      · specialize h4 x
+        exact h4
+      · exact h5
+    specialize h2 x
+    rw [this] at h2
+    simp at h2
+    have h6: A 0 0 * x 0 + A 0 1 * x 1 = 0 := by
+      rw [eq_comm, add_eq_zero_iff_of_nonneg] at h2
+      · simp at h2
+        exact h2.1
+      · nlinarith
+      · nlinarith
+    have h7: A.det * x 1^2 = 0 := by
+      rw [eq_comm, add_eq_zero_iff_of_nonneg] at h2
+      · exact h2.2
+      · nlinarith
+      · nlinarith
+    simp at h7
+    obtain _ | h7 := h7
+    · linarith
+    · simp[h7] at h6
+      obtain _ | h6 := h6
+      · linarith
+      · apply hx
+        ext i
+        fin_cases i
+        · exact h6
+        · exact h7
 
 structure _root_.PosDefQuadMap (n : ℕ) where
   matrix : Matrix (Fin n) (Fin n) ℤ
