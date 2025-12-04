@@ -151,22 +151,57 @@ lemma lemma4b (B : PosDefQuadMap 3) (V : SL(Fin 2, ℤ)) (r s : ℤ) (x : Fin 3 
   convert QuadraticMap.Tenary.apply ((mkFin3OfFin2 V r s) • B.1) ?_ ?_ using 2
   · rw [lemma4a]
   · let Ars := ((mkFin3OfFin2 V r s) • B.1)
+    set A := V • (G B.1)
     let y := (mkFin3OfFin2 V r s).1.mulVec x
     have h1 : (G B.1).toQuadraticMap' ![y 1, y 2] =
-        (V • (G B.1)).toQuadraticMap' ![x 1, x 2] := by
+        A.toQuadraticMap' ![x 1, x 2] := by
 
       sorry
     have h2 : Ars.toQuadraticMap' x = B.1.toQuadraticMap' y := by sorry
     rw [← add_right_inj ((Ars 0 0 * x 0 + Ars 0 1 * x 1 + Ars 0 2 * x 2) ^ 2)]
     symm
-    calc
-      _ = Ars 0 0 * Ars.toQuadraticMap' ![x 0, x 1, x 2] := sorry
-      _ = B.1 0 0 * Ars.toQuadraticMap' ![x 0, x 1, x 2] := sorry
-      _ = B.1 0 0 * B.1.toQuadraticMap' ![y 0, y 1, y 2] := sorry
-      _ = (B.1 0 0 * y 0 + B.1 0 1 * y 1 + B.1 0 2 * y 2)^2  + (G B.1).toQuadraticMap' ![y 1, y 2] := sorry
-      _ = (Ars 0 0 * x 0 + Ars 0 1 * x 1 + Ars 0 2 * x 2)^2  + (G Ars).toQuadraticMap' ![x 1, x 2] := sorry
-    congr 1
+    calc (Ars 0 0 * x 0 + Ars 0 1 * x 1 + Ars 0 2 * x 2) ^ 2 +
+      (G (V.mkFin3OfFin2 r s • B.matrix)).toQuadraticMap' ![x 1, x 2]
+      _ = Ars 0 0 * Ars.toQuadraticMap' ![x 0, x 1, x 2] := by
+        rw [← apply ]
+        · rfl
+        · exact isSymm_of_rel ⟨(V.mkFin3OfFin2 r s)⁻¹, by simp [Ars]⟩ B.2
+      _ = B.1 0 0 * Ars.toQuadraticMap' ![x 0, x 1, x 2] := by
+        rw [lemma4a]
+      _ = B.1 0 0 * B.1.toQuadraticMap' ![y 0, y 1, y 2] := by
+        congr 1
+      _ = (B.1 0 0 * y 0 + B.1 0 1 * y 1 + B.1 0 2 * y 2) ^ 2 +
+        (G B.1).toQuadraticMap' ![y 1, y 2] := by
+        nth_rw 1 [apply B.1 B.2]
+        rfl
     rw [← h1]
+    -- congr 2
+    -- simp [y, Matrix.mulVec_apply]
+    -- simp only [mkFin3OfFin2, Matrix.transpose_apply]
+    -- simp [Fin.sum_univ_three, mul_add]
+    -- simp [Ars, smul_def, mul_apply, Fin.sum_univ_three]
+    -- simp only [mkFin3OfFin2, Matrix.transpose_apply]
+    -- simp
+    -- ring
+
+
+    -- simp [y, mulVec_apply]
+    -- conv_lhs =>
+    --   enter [1];
+    --   unfold mkFin3OfFin2 ; simp only [Matrix.transpose_apply, Fin.sum_univ_three]
+
+
+    -- have :=
+    -- calc Ars 0 0 * Ars.toQuadraticMap' ![x 0, x 1, x 2]
+    --   _ = B.1 0 0 * Ars.toQuadraticMap' ![x 0, x 1, x 2] := sorry
+    --   _ = B.1 0 0 * B.1.toQuadraticMap' ![y 0, y 1, y 2] := sorry
+    --   _ = (B.1 0 0 * y 0 + B.1 0 1 * y 1 + B.1 0 2 * y 2)^2 +
+    --     A.toQuadraticMap' ![y 1, y 2] := sorry
+    --   _ = (Ars 0 0 * x 0 + Ars 0 1 * x 1 + Ars 0 2 * x 2)^2 +
+    --     (G Ars).toQuadraticMap' ![x 1, x 2] := by
+    --     sorry
+    -- congr 1
+
     sorry
   · simpa [Matrix.IsSymm] using B.isSymm
 
