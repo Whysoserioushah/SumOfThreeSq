@@ -334,17 +334,6 @@ lemma Nat.odd_eq_mod_8_mul (n : ℕ) (hn : Odd n) :
 -- lemma Int.mod_mul_mod (a b c : ℤ) : ((a % c) * (b % c)) % c = (a * b) % c := by
 --   exact Eq.symm (mul_emod a b c)
 
-#check Nat.pow_mod
-
-lemma Int.pow_emod (a : ℤ) (b : ℕ) (c : ℤ) (hc : c ≠ 0) :
-    ((a % c) ^ b) % c = (a ^ b) % c := by
-  sorry
-  -- change ((a.natAbs % c.natAbs) ^ _) % c.natAbs = _ % c.natAbs
-  -- induction b with
-  -- | zero => simp
-  -- | succ b ih =>
-  --   rw [pow_succ, pow_succ, mul_emod, ih]
-
 lemma Nat.mod_eight_eq (n : ℕ) (hn : Odd n) : n % 8  =
     ((∏ q ∈ n.primeFactors with q % 8 = 3 ∨ q % 8 = 5, 3 ^ (n.factorization q)) *
     (∏ q ∈ n.primeFactors with q % 8 = 5 ∨ q % 8 = 7, 7 ^ (n.factorization q)) % 8) := by
@@ -364,24 +353,43 @@ lemma Nat.mod_eight_eq (n : ℕ) (hn : Odd n) : n % 8  =
   simp only [this, one_mod, one_mul, dvd_refl, mod_mod_of_dvd, mul_mod_mod, mod_mul_mod]
   rw [Finset.filter_or, Finset.prod_union (Finset.disjoint_left.2 fun n hn ↦ by simp_all),
     Finset.filter_or, Finset.prod_union (Finset.disjoint_left.2 fun n hn ↦ by simp_all)]
-  -- have : ∏ q ∈ n.primeFactors with q % 8 = 7, ((q % 8) ^ (n.factorization q) % 8) =
-  --   ∏ q ∈ n.primeFactors with q % 8 = 7, (7 ^ (n.factorization q) % 8) := by sorry
-  -- rw [this]
-    -- refine Finset.prod_eq_one fun q hq ↦ ?_
-    -- simp only [Finset.mem_filter, mem_primeFactors, ne_eq] at hq
-    -- simp [hq.2]
-
-
-  -- simp only [cast_mul, cast_prod, cast_pow, Int.reduceNeg]
-  -- rw [Int.mul_emod]
-  -- nth_rw 2 [Int.mul_emod]
-  -- nth_rw 3 [Int.mul_emod]
-  -- rw [Finset.prod_int_mod]
-  -- nth_rw 2 [Finset.prod_int_mod]
-  -- nth_rw 3 [Finset.prod_int_mod]
-
-
-  sorry
+  have : ∏ q ∈ n.primeFactors with q % 8 = 7, ((q % 8) ^ (n.factorization q) % 8) =
+    ∏ q ∈ n.primeFactors with q % 8 = 7, (7 ^ (n.factorization q) % 8) := by
+    refine Finset.prod_congr rfl fun q hq ↦ by
+      simp only [Finset.mem_filter, mem_primeFactors, ne_eq] at hq; simp [hq.2]
+  rw [this]
+  have : ∏ q ∈ n.primeFactors with q % 8 = 3, ((q % 8) ^ (n.factorization q) % 8) =
+    ∏ q ∈ n.primeFactors with q % 8 = 3, (3 ^ (n.factorization q) % 8) := by
+    refine Finset.prod_congr rfl fun q hq ↦ by
+      simp only [Finset.mem_filter, mem_primeFactors, ne_eq] at hq; simp [hq.2]
+  rw [this]
+  clear * -
+  have : ∏ q ∈ n.primeFactors with q % 8 = 5, ((q % 8) ^ (n.factorization q) % 8) =
+    ∏ q ∈ n.primeFactors with q % 8 = 5, (((3 % 8 * 7 % 8) % 8) ^ (n.factorization q) % 8) := by
+    refine Finset.prod_congr rfl fun q hq ↦ by
+      simp only [Finset.mem_filter, mem_primeFactors, ne_eq] at hq;
+      simp [hq.2]
+  rw [this]
+  have : ∏ q ∈ n.primeFactors with q % 8 = 5, (3 % 8 * 7 % 8 % 8) ^ n.factorization q % 8 =
+    ∏ q ∈ n.primeFactors with q % 8 = 5,
+      (3 ^ n.factorization q % 8 * 7 ^ n.factorization q % 8) % 8 := by
+    refine Finset.prod_congr rfl fun q hq ↦ by
+      simp [← mul_pow, Nat.pow_mod]
+  rw [this, mul_mod]; nth_rw 2 [mul_mod]
+  have : (∏ q ∈ n.primeFactors with q % 8 = 5, 3 ^ n.factorization q % 8 *
+      7 ^ n.factorization q % 8 % 8) % 8 = (∏ q ∈ n.primeFactors with q % 8 = 5,
+      3 ^ n.factorization q % 8) * (∏ q ∈ n.primeFactors with q % 8 = 5,
+      7 ^ n.factorization q % 8) % 8 := by
+    rw [← Finset.prod_mul_distrib]
+    nth_rw 2 [Finset.prod_nat_mod]
+    conv_rhs => enter[1, 2, i]; rw [← mul_mod]
+    conv_lhs => enter[1, 2, i]; rw [mod_mod]
+    congr! 2 with q hq
+    exact mod_mul_mod ..
+  rw [this]
+  clear * -
+  conv_lhs => enter[1, 1]; rw [← mul_mod, ← mul_assoc]
+  rw [← mul_mod, mul_assoc]
 
 -- instance (n : ℕ) : Fintype { x // x ∈ n.primeFactors } := n.primeFactors.fintypeCoeSort
   -- Fintype.ofFinset n.primeFactors (by sorry)
