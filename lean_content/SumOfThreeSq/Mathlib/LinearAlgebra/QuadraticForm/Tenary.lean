@@ -153,7 +153,9 @@ lemma lemma4b (B : PosDefQuadMap 3) (V : SL(Fin 2, ℤ)) (r s : ℤ) (x : Fin 3 
   · let Ars := ((mkFin3OfFin2 V r s) • B.1)
     let y := (mkFin3OfFin2 V r s).1.mulVec x
     have h1 : (G B.1).toQuadraticMap' ![y 1, y 2] =
-        (V • (G B.1)).toQuadraticMap' ![x 1, x 2] := by sorry
+        (V • (G B.1)).toQuadraticMap' ![x 1, x 2] := by
+
+      sorry
     have h2 : Ars.toQuadraticMap' x = B.1.toQuadraticMap' y := by sorry
     rw [← add_right_inj ((Ars 0 0 * x 0 + Ars 0 1 * x 1 + Ars 0 2 * x 2) ^ 2)]
     symm
@@ -163,6 +165,9 @@ lemma lemma4b (B : PosDefQuadMap 3) (V : SL(Fin 2, ℤ)) (r s : ℤ) (x : Fin 3 
       _ = B.1 0 0 * B.1.toQuadraticMap' ![y 0, y 1, y 2] := sorry
       _ = (B.1 0 0 * y 0 + B.1 0 1 * y 1 + B.1 0 2 * y 2)^2  + (G B.1).toQuadraticMap' ![y 1, y 2] := sorry
       _ = (Ars 0 0 * x 0 + Ars 0 1 * x 1 + Ars 0 2 * x 2)^2  + (G Ars).toQuadraticMap' ![x 1, x 2] := sorry
+    congr 1
+    rw [← h1]
+    sorry
   · simpa [Matrix.IsSymm] using B.isSymm
 
 def _root_.Matrix.SpcecialLinearGroup.mkFin3FromInt (u11 u21 u31 : ℤ)
