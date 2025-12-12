@@ -748,23 +748,97 @@ lemma Nat.mod_four_eq_three_decompose {n : ℕ} (hn : n % 8 = 3) :
   rw [hn2]; nth_rw 2 [Finset.prod_nat_mod]
 
 
-lemma finallemma {p d : ℕ} [Fact p.Prime] (hd1 : d % 4 = 3) :
+lemma sum_factorization_three_mod_four_odd {d : ℕ} (hd : d % 4 = 3) :
+    Odd (∑ q ∈ d.primeFactors.filter (· % 4 = 3), d.factorization q) := by
+  have hd_pos : d ≠ 0 := by omega
+  have hd_odd : Odd d := Nat.odd_iff.mpr (by omega)
+  have hchi : ZMod.χ₄ (d : ℤ) = -1 := ZMod.χ₄_int_three_mod_four (by omega : (d : ℤ) % 4 = 3)
+  have h_prod : ZMod.χ₄ (d : ℤ) =
+      ∏ q ∈ d.primeFactors, ZMod.χ₄ ((q : ℤ) ^ d.factorization q) := by
+    conv_lhs => rw [← Nat.factorization_prod_pow_eq_self hd_pos]
+    push_cast; exact map_prod (ZMod.χ₄ : MulChar (ZMod 4) ℤ) _ _
+  have h_factor : ∀ q ∈ d.primeFactors, ZMod.χ₄ ((q : ℤ) ^ d.factorization q) =
+      if q % 4 = 3 then (-1 : ℤ) ^ d.factorization q else 1 := fun q hq => by
+    have hq_prime := Nat.prime_of_mem_primeFactors hq
+    have hq_odd : q ≠ 2 := fun h => hd_odd.not_two_dvd_nat (h ▸ Nat.dvd_of_mem_primeFactors hq)
+    rcases (by have := hq_prime.eq_two_or_odd.resolve_left hq_odd; omega :
+        q % 4 = 1 ∨ q % 4 = 3) with h1 | h3 <;> rw [map_pow]
+    · simp only [ZMod.χ₄_int_one_mod_four (by omega : (q : ℤ) % 4 = 1), one_pow,
+        if_neg (by omega : ¬q % 4 = 3)]
+    · simp only [ZMod.χ₄_int_three_mod_four (by omega : (q : ℤ) % 4 = 3), if_pos h3]
+  simp only [Finset.prod_congr rfl h_factor, ← Finset.prod_filter, hchi,
+    Finset.prod_pow_eq_pow_sum] at h_prod
+  by_contra h_even; rw [Nat.not_odd_iff_even] at h_even
+  simp [Even.neg_one_pow h_even] at h_prod
+
+lemma finallemma {p d : ℕ} (hp1 : p % 4 = 3) [Fact p.Prime] (hd1 : d % 4 = 3) :
     -legendreSym p d = ∏ q : d.primeFactors, (legendreSym q p) ^ (d.factorization q) := by
-  -- have hd0 : Odd d := by grind
-  -- nth_rw 1 [Nat.Odd.finset_prod_decompose hd0]
-  -- simp only [Nat.cast_mul, Nat.cast_prod, Nat.cast_pow, legendreSym.mul, ← Finset.prod_legendreSym,
-  --   legendreSym.pow]
-  -- haveI hqq (q) (hq : q ∈ d.primeFactors) : Fact q.Prime := ⟨Nat.prime_of_mem_primeFactors hq⟩
-  -- have h1 : ∏ x ∈ d.primeFactors with x % 4 = 3, legendreSym p ↑x ^ d.factorization x =
-  --   ∏ x ∈ d.primeFactors with x % 4 = 3, (- @legendreSym x (hqq _ _) p) ^ d.factorization x := by
-  --   refine Finset.prod_congr rfl fun x hx ↦ by
-  --     sorry
-  -- rw [← Finset.prod_subtype (p := fun i ↦ i ∈ d.primeFactors) d.primeFactors (by simp)
-  --   (fun x ↦ (@legendreSym x ⟨Nat.prime_of_mem_primeFactors _⟩ p) ^ (d.factorization x))]
-  -- rw [← Finset.prod_legendreSym (p := p)]
-  sorry
-
-
+  have hd_pos : d ≠ 0 := by omega
+  have hd_odd : Odd d := Nat.odd_iff.mpr (by omega)
+  have hp_ne2 : p ≠ 2 := by omega
+  have hd_eq : d = ∏ q ∈ d.primeFactors, q ^ d.factorization q := by
+    conv_lhs => rw [← Nat.factorization_prod_pow_eq_self hd_pos]
+    rfl
+  have h_leg_prod : legendreSym p d =
+      ∏ q ∈ d.primeFactors, legendreSym p ((q : ℤ) ^ d.factorization q) := by
+    conv_lhs => rw [hd_eq]
+    rw [Nat.cast_prod]; simp_rw [Nat.cast_pow]
+    rw [← legendreSym.hom_apply, map_prod]; simp only [legendreSym.hom_apply]
+  have h_pow : ∀ q ∈ d.primeFactors, legendreSym p ((q : ℤ) ^ d.factorization q) =
+      (legendreSym p q) ^ d.factorization q := fun q _ => by
+    generalize d.factorization q = n
+    induction n with
+    | zero => simp [legendreSym.at_one]
+    | succ n ih => rw [pow_succ, pow_succ, legendreSym.mul, ih]
+  have h_leg_prod' : legendreSym p d =
+      ∏ q ∈ d.primeFactors, (legendreSym p q) ^ d.factorization q := by
+    rw [h_leg_prod]; apply Finset.prod_congr rfl h_pow
+  have h_recip : ∀ (q : d.primeFactors), legendreSym q.1 p =
+      (if q.1 % 4 = 3 then -1 else 1) * legendreSym p q.1 := by
+    intro q
+    have hq_prime := Nat.prime_of_mem_primeFactors q.2
+    have hq_odd : q.1 ≠ 2 := fun h => hd_odd.not_two_dvd_nat (h ▸ Nat.dvd_of_mem_primeFactors q.2)
+    rcases (by have := hq_prime.eq_two_or_odd.resolve_left hq_odd; omega :
+        q.1 % 4 = 1 ∨ q.1 % 4 = 3) with h1 | h3
+    · rw [legendreSym.quadratic_reciprocity' hq_odd hp_ne2,
+        Even.neg_one_pow (Nat.even_iff.mpr (by omega : q.1 / 2 % 2 = 0) |>.mul_right _),
+        one_mul, if_neg (by omega : ¬q.1 % 4 = 3), one_mul]
+    · rw [legendreSym.quadratic_reciprocity_three_mod_four hp1 h3, if_pos h3]; ring
+  have h_rhs : ∏ q : d.primeFactors, (legendreSym q.1 p) ^ d.factorization q.1 =
+      (∏ q : d.primeFactors, (if q.1 % 4 = 3 then -1 else 1) ^ d.factorization q.1) *
+      (∏ q : d.primeFactors, (legendreSym p q.1) ^ d.factorization q.1) := by
+    rw [← Finset.prod_mul_distrib]
+    apply Finset.prod_congr rfl
+    intro q _; rw [h_recip q, mul_pow]
+  have h_sign : ∏ q : d.primeFactors, (if q.1 % 4 = 3 then (-1 : ℤ) else 1) ^ d.factorization q.1 =
+      (-1 : ℤ) ^ (∑ q ∈ d.primeFactors.filter (· % 4 = 3), d.factorization q) := by
+    have h1 : ∏ q ∈ d.primeFactors, (if q % 4 = 3 then (-1 : ℤ) else 1) ^ d.factorization q =
+        ∏ q ∈ d.primeFactors.filter (· % 4 = 3), (-1 : ℤ) ^ d.factorization q := by
+      conv_lhs => rw [← Finset.prod_filter_mul_prod_filter_not d.primeFactors (· % 4 = 3)]
+      have hA : ∏ q ∈ d.primeFactors.filter (· % 4 = 3),
+          (if q % 4 = 3 then (-1 : ℤ) else 1) ^ d.factorization q =
+          ∏ q ∈ d.primeFactors.filter (· % 4 = 3), (-1 : ℤ) ^ d.factorization q :=
+        Finset.prod_congr rfl fun q hq => by simp [(Finset.mem_filter.mp hq).2]
+      have hB : ∏ q ∈ d.primeFactors.filter (fun x => ¬ x % 4 = 3),
+          (if q % 4 = 3 then (-1 : ℤ) else 1) ^ d.factorization q = 1 :=
+        Finset.prod_eq_one fun q hq => by simp [(Finset.mem_filter.mp hq).2]
+      rw [hA, hB, mul_one]
+    have heq : ∏ q : d.primeFactors, (if q.1 % 4 = 3 then (-1 : ℤ) else 1) ^ d.factorization q.1 =
+        ∏ q ∈ d.primeFactors, (if q % 4 = 3 then (-1 : ℤ) else 1) ^ d.factorization q :=
+      Finset.prod_coe_sort d.primeFactors
+        (fun q => (if q % 4 = 3 then (-1 : ℤ) else 1) ^ d.factorization q)
+    calc ∏ q : d.primeFactors, (if q.1 % 4 = 3 then (-1 : ℤ) else 1) ^ d.factorization q.1
+        = ∏ q ∈ d.primeFactors, (if q % 4 = 3 then (-1 : ℤ) else 1) ^ d.factorization q := heq
+      _ = ∏ q ∈ d.primeFactors.filter (· % 4 = 3), (-1 : ℤ) ^ d.factorization q := h1
+      _ = (-1 : ℤ) ^ (∑ q ∈ d.primeFactors.filter (· % 4 = 3), d.factorization q) := by
+          rw [Finset.prod_pow_eq_pow_sum]
+  have h_leg_sub : ∏ q : d.primeFactors, (legendreSym p q.1) ^ d.factorization q.1 =
+      legendreSym p d := by
+    have heq2 : ∏ q : d.primeFactors, (legendreSym p q.1) ^ d.factorization q.1 =
+        ∏ q ∈ d.primeFactors, (legendreSym p q) ^ d.factorization q :=
+      Finset.prod_coe_sort d.primeFactors (fun q => (legendreSym p q) ^ d.factorization q)
+    rw [heq2, ← h_leg_prod']
+  rw [h_rhs, h_sign, Odd.neg_one_pow (sum_factorization_three_mod_four_odd hd1), h_leg_sub]; ring
 
 lemma Nat.sum_threeSq_of_mod_eight_eq_five {n : ℕ} (hn : n % 8 = 5) :
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
@@ -804,7 +878,7 @@ lemma Nat.sum_threeSq_of_mod_eight_eq_five {n : ℕ} (hn : n % 8 = 5) :
   rw [legendreSym.neg_of_three_mod_four p (by grind) hp5]
   have hd3 : d' % 8 = 3 := by grind
   have hd4 : d' % 4 = 3 := by grind
-  rw [finallemma hd4]
+  rw [@finallemma p d' hp5 _ hd4]
   have hq2 (q) (hq : q ∈ d'.primeFactors) : q ≠ 2 := by
     rintro rfl
     have := mem_primeFactors_of_ne_zero (by omega) |>.1 hq
