@@ -235,8 +235,8 @@ def _root_.Matrix.SpcecialLinearGroup.mkFin3FromInt (u11 u21 u31 : ℤ)
     simp [Matrix.det_fin_three]
     grind
 
-lemma lemma6 (d : ℤ) (x : Quotient (EquivalentQuad 3)) (hx : ∀ Q : PosDefQuadMap 3,
-    Quotient.mk'' Q = x → Q.1.det = d) : ∃ Q : PosDefQuadMap 3, Quotient.mk'' Q = x ∧
+lemma lemma6 (d : ℤ) (x : Quotient (EquivalentQuad 3)) (Q : PosDefQuadMap 3) (hQ1 : Q.1.det = d):
+    ∃ Q' : PosDefQuadMap 3, EquivalentQuad 3 Q Q' ∧
     2 * max |Q.matrix 0 1| |Q.matrix 0 2| ≤ Q.matrix 0 0 ∧
     Q.matrix 0 0 ≤ (4 / (Real.sqrt 3)) * d ^ (1 / 3 : ℝ) := by
   sorry
