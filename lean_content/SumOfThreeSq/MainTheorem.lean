@@ -77,3 +77,25 @@ theorem Nat.sum_threeSq_iff (n : ℕ) : (∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c 
     nth_rw 1 [hd']
     simp only [cast_mul, habc, cast_pow, cast_ofNat, mul_eq_mul_left_iff]
     left; rw [← pow_mul]; grind
+
+lemma Nat.sq_mod_eight (n : ℕ) : n ^ 2 % 8 = 0 ∨ n ^ 2 % 8 = 1 ∨ n ^ 2 % 8 = 4 := by
+  rcases (by grind : (Odd n) ∨ (2 ∣ n ∧ ¬ 4 ∣ n) ∨ (4 ∣ n)) with h | h | h
+  · have h : n % 8 = 1 ∨ n % 8 = 3 ∨ n % 8 = 5 ∨ n % 8 = 7 := by grind
+    rcases h with h | h | h | h <;> grind [pow_two, Int.mul_emod]
+  · right; right
+    have : 4 ∣ n ^ 2 := pow_dvd_pow_iff (by decide)|>.2 h.1
+    have : ¬ 8 ∣ n ^ 2 := fun h8 ↦ h.2 <| Nat.succ_dvd_or_succ_dvd_of_succ_sum_dvd_mul prime_two
+      (pow_one 2 ▸ h.1) (pow_one 2 ▸ h.1) (pow_two n ▸ h8)|>.casesOn (by simp) (by simp)
+    grind
+  · have : 8 ∣ n ^ 2 := (by decide : 8 ∣ 16).trans (pow_dvd_pow_iff (by decide)|>.2 h)
+    grind
+
+theorem Nat.sum_threeSq_odd (n : ℕ) (hn : n % 8 = 3) : ∃ a b c : ℕ, Odd a ∧ Odd b ∧
+    Odd c ∧ n = a ^ 2 + b ^ 2 + c ^ 2 := by
+  obtain ⟨a0, b0, c0, habc⟩ := Nat.sum_threeSq_of_mod_eight_eq_three hn
+  use a0.natAbs, b0.natAbs, c0.natAbs
+  rw [← Int.natAbs_pow_two, ← Int.natAbs_pow_two b0, ← Int.natAbs_pow_two c0] at habc
+  rcases Nat.sq_mod_eight a0.natAbs with ha0 | ha0 | ha0
+  <;> rcases Nat.sq_mod_eight b0.natAbs with hb0 | hb0 | hb0
+  <;> rcases Nat.sq_mod_eight c0.natAbs with hc0 | hc0 | hc0
+  all_goals grind [Nat.odd_pow_iff]
