@@ -126,7 +126,7 @@ lemma Finset.prod_filter_eq_of_iff {ι M : Type*} [CommMonoid M] {s : Finset ι}
   Finset.prod_congr (by ext; simp_all) fun _ _ ↦ rfl
 
 lemma Nat.sub_one_coprime_self {n : ℕ} (hn : 0 < n) : (n - 1).Coprime n := by
-  sorry
+  simp [Coprime,gcd_self_sub_left hn]
 
 lemma Nat.mod_four_eq_two_to_sum_threeSq (n : ℕ) (hn : n % 4 = 2) :
     ∃ a b c : ℤ, n = a ^ 2 + b ^ 2 + c ^ 2 := by
